@@ -3,27 +3,53 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class SimpleTPSController : MonoBehaviour
 {
+    [Header("Movement")]
     public float moveSpeed = 4f;
     public float rotationSpeed = 720f;
-    public Transform cam;
 
+    [Header("References")]
+    public Transform cam;              
+    Animator animator;                 
     CharacterController controller;
 
-    void Awake() => controller = GetComponent<CharacterController>();
+    [Header("Animation")]
+    public string speedParam = "Speed";
+    public float speedDampTime = 0.1f;
+
+    void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+        animator   = GetComponentInChildren<Animator>();
+        if (cam == null && Camera.main) cam = Camera.main.transform;
+    }
 
     void Update()
     {
-        Vector2 input = new(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        Vector3 move = (cam.forward * input.y + cam.right * input.x);
-        move.y = 0f;
+        if (Time.timeScale == 0f || cam == null) return;
 
-        if (move.sqrMagnitude > 0.01f)
+        // --- Input ---
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        // --- Camera-relative move vector (flat on ground) ---
+        Vector3 fwd = cam.forward;  fwd.y = 0f;  fwd.Normalize();
+        Vector3 right = cam.right;  right.y = 0f; right.Normalize();
+        Vector3 move = fwd * v + right * h;
+
+        float inputMag = Mathf.Clamp01(move.magnitude);
+
+        // --- Face move direction ---
+        if (inputMag > 0.0001f)
         {
-            Quaternion rot = Quaternion.LookRotation(move);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, rot, rotationSpeed * Time.deltaTime);
+            Quaternion to = Quaternion.LookRotation(move);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, to, rotationSpeed * Time.deltaTime);
         }
 
-        controller.SimpleMove(move.normalized * moveSpeed);
+        // --- Move (SimpleMove applies gravity) ---
+        controller.SimpleMove(move.normalized * (moveSpeed * inputMag));
+
+        // --- Animate ---
+        if (animator)
+            animator.SetFloat(speedParam, inputMag, speedDampTime, Time.deltaTime);
     }
 }
-
