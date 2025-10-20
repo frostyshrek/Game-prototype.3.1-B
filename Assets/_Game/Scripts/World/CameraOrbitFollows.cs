@@ -23,37 +23,59 @@ public class CameraOrbitFollow : MonoBehaviour
     [Header("Smoothing")]
     public float followSmooth = 10f;
 
-    float yaw;
-    float pitch;
+    [Header("Cursor")]
+    public bool lockCursor = true;
+    public KeyCode toggleUnlockKey = KeyCode.Escape;
+
+    float yaw, pitch;
+
+    void OnEnable()
+    {
+        ApplyCursorState(lockCursor);
+    }
+
+    void OnDisable()
+    {
+        ApplyCursorState(false);
+    }
+
+    void ApplyCursorState(bool locked)
+    {
+        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible   = !locked;
+    }
 
     void Start()
     {
         var e = transform.eulerAngles;
         yaw = e.y;
         pitch = Mathf.Clamp(e.x, minPitch, maxPitch);
-        // Optional:
-        // Cursor.lockState = CursorLockMode.Locked;
-        // Cursor.visible = false;
     }
 
     void LateUpdate()
     {
+        if (Time.timeScale == 0f) return;
         if (!target) return;
 
-        Vector2 look = ReadLookInput();      // Mouse delta
-        float scroll = ReadScrollInput();    // Mouse wheel
+        // Optional: allow unlock (pause menus, etc.)
+        if (Input.GetKeyDown(toggleUnlockKey))
+        {
+            lockCursor = !lockCursor;
+            ApplyCursorState(lockCursor);
+        }
+
+        Vector2 look = ReadLookInput();
+        float scroll = ReadScrollInput();
 
         yaw   += look.x * mouseSensitivity * Time.deltaTime;
         pitch -= look.y * mouseSensitivity * Time.deltaTime;
         pitch  = Mathf.Clamp(pitch, minPitch, maxPitch);
-
         distance = Mathf.Clamp(distance - scroll * zoomSensitivity, minDistance, maxDistance);
 
         Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 focus = target.position + focusOffset;
         Vector3 desiredPos = focus - rot * Vector3.forward * distance;
 
-        // (Optional) simple camera collision: keep clear of walls
         if (Physics.SphereCast(focus, 0.2f, (desiredPos - focus).normalized, out RaycastHit hit, distance))
             desiredPos = hit.point + hit.normal * 0.2f;
 
@@ -72,7 +94,7 @@ public class CameraOrbitFollow : MonoBehaviour
     float ReadScrollInput()
     {
         #if ENABLE_INPUT_SYSTEM
-        if (Mouse.current != null) return Mouse.current.scroll.ReadValue().y / 120f; // normalize like old system
+        if (Mouse.current != null) return Mouse.current.scroll.ReadValue().y / 120f;
         #endif
         return Input.mouseScrollDelta.y;
     }

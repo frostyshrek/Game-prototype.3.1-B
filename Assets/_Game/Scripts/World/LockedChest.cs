@@ -5,11 +5,13 @@ using UnityEngine.Events;
 public class LockedChest : MonoBehaviour
 {
     public KeyItem requiredKey = KeyItem.AncientKey;
-    public Animator anim;                 // optional
-    public UnityEvent onOpened;           // hook up UI panel / reward
-    public UnityEvent onLockedFeedback;   // show "Need a key" prompt
+    public Animator anim;
+    public UnityEvent onOpened;
+    public UnityEvent onLockedFeedback;
 
     bool opened;
+    bool playerInRange;
+    Transform player;
 
     void Reset()
     {
@@ -17,9 +19,23 @@ public class LockedChest : MonoBehaviour
         c.isTrigger = true;
     }
 
-    void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if (opened || !other.CompareTag("Player")) return;
+        if (!other.CompareTag("Player")) return;
+        playerInRange = true;
+        player = other.transform;
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        playerInRange = false;
+        player = null;
+    }
+
+    void Update()
+    {
+        if (!playerInRange || opened) return;
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -32,6 +48,17 @@ public class LockedChest : MonoBehaviour
             opened = true;
             if (anim) anim.SetTrigger("Open");
             onOpened?.Invoke();
+        }
+
+        var aim = Camera.main ? Camera.main.GetComponent<AimRayProvider>() : null;
+        if (aim && aim.TryGetAimHit(out var hit, 8f))
+        {
+            var myRoot = transform.root;
+            if (!hit.collider.transform.IsChildOf(myRoot))
+            {
+                // Not actually aiming at THIS chest → ignore E
+                return;
+            }
         }
     }
 }
