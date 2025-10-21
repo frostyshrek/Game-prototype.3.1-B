@@ -1,22 +1,47 @@
 using UnityEngine;
 
+public enum BoostType
+{
+    multiplier,
+    flat
+}
+
 [CreateAssetMenu(fileName = "AttackBoost", menuName = "StatusEffects/AttackBoost")]
 public class AttackBoost : StatusEffect
 {
-    public float attackIncrease = 2f;
+    public float boostAmount = 2f;
+    public BoostType boostType = BoostType.multiplier;
+    public bool singleUse = true;
+    private bool used = false;
 
     public override int ModifyOutgoingDamage(int damage)
     {
-        return Mathf.RoundToInt(damage * attackIncrease);
+        if (used && singleUse)
+            return damage;
+
+        int modifiedDamage = damage;
+
+        if (boostType == BoostType.multiplier)
+        {
+            modifiedDamage = Mathf.RoundToInt(damage * boostAmount);
+        }
+        else if (boostType == BoostType.flat)
+        {
+            modifiedDamage = damage + Mathf.RoundToInt(boostAmount);
+        }
+
+        if (singleUse)
+            used = true;
+
+        return modifiedDamage;
     }
 
-    public override void OnApply(Character target)
+    public override void OnTurnStart(Character target)
     {
-        Debug.Log($"{target.charactername} gains an attack boost of {attackIncrease} for {duration} turns.");
-    }
-
-    public override void OnRemove(Character target)
-    {
-        Debug.Log($"{target.charactername}'s attack boost has worn off.");
-    }
+        if (used || --duration <= 0)
+        {
+            target.RemoveStatusEffect(this);
+            Debug.Log($"{target.charactername}'s Attack Boost has worn off.");
+        }
+    }   
 }
