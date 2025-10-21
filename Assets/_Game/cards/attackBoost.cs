@@ -41,7 +41,7 @@ public class AttackBoost : StatusEffect
         if (used || --duration <= 0)
         {
             target.RemoveStatusEffect(this);
-            Debug.Log($"{target.charactername}'s Attack Boost has worn off.");
+            Debug.Log($"{target.characterName}'s Attack Boost has worn off.");
         }
     }   
 }

@@ -43,7 +43,7 @@ public class DefenceBoost : StatusEffect
         if (used || --duration <= 0)
         {
             target.RemoveStatusEffect(this);
-            Debug.Log($"{target.charactername}'s Defence Boost has worn off.");
+            Debug.Log($"{target.characterName}'s Defence Boost has worn off.");
         }
     }   
 }

@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class BurnEffect : StatusEffect
 {
-    public int burnDamage = 3
+    public int burnDamage = 3;
 
     public override void OnTurnStart(Character target)
     {
         target.TakeDamage(burnDamage);
         duration--;
-        Debug.Log($"{target.charactername} takes {burnDamage} burn damage. {duration} turns remaining.");
+        Debug.Log($"{target.characterName} takes {burnDamage} burn damage. {duration} turns remaining.");
 
         if (duration <= 0)
         {

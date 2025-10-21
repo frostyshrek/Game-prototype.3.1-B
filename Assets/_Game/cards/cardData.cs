@@ -5,8 +5,8 @@ public class CardData : ScriptableObject
 {
     public string cardName;
     public Sprite artwork;
-    public CardType type;
-    public int attack;
+    public CardType cardType;
+    public int powerValue;
     public StatusEffect statusEffect;
     public string description;
 }
