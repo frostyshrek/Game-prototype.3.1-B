@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93ecc7bc54bf1d64fb842e7f666736d0, type: 3}
   m_Name: AttackBuffFCard
   m_EditorClassIdentifier: 
-  cardName: 
+  cardName: Flat Buff
   artwork: {fileID: 0}
-  cardType: 0
+  cardType: 2
   powerValue: 0
-  statusEffect: {fileID: 0}
-  description: 
+  statusEffect: {fileID: 11400000, guid: e4a06f45c0f552943bf2ac95d3b901b1, type: 2}
+  description: add an extra 10 damage to your next attack

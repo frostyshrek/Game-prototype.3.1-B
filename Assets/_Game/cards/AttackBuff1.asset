@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba236d4f30053744b1a490162708c8b, type: 3}
   m_Name: AttackBuff1
   m_EditorClassIdentifier: 
-  effectName: 
-  duration: 0
+  effectName: Attack Buff
+  duration: 1
   boostAmount: 2
   boostType: 0
   singleUse: 1

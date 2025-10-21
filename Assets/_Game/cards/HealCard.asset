@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Heal
   artwork: {fileID: 0}
-  cardType: 0
+  cardType: 3
   powerValue: 10
   statusEffect: {fileID: 0}
   description: These bandages heal you for 10HP

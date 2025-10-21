@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d6076ebed980b24184ebbbd2821e1c6, type: 3}
   m_Name: ShieldDefenceEffect
   m_EditorClassIdentifier: 
-  effectName: 
-  duration: 0
-  boostAmount: 0.5
+  effectName: 'Shield '
+  duration: 1
+  boostAmount: 0.2
   defenceType: 0
   singleUse: 1

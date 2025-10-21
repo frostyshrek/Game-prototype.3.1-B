@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d7ba5af775ce0149a802cae9ebe2671, type: 3}
   m_Name: BurnEffect
   m_EditorClassIdentifier: 
-  effectName: 
-  duration: 0
+  effectName: Burn
+  duration: 3
   burnDamage: 3
