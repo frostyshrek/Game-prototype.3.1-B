@@ -8,12 +8,15 @@ namespace BattleSystem
     {
         public CardManager cardManager;
         public EffectResolver effectResolver;
+        public PlayerController playerController;
+        public EnemyController enemyController;
+        public CharacterController characterController;
         
-        [Header("Battle State")]
+        // [Header("Battle State")]
         public BattleState currentState = BattleState.PlayerTurn;
-        public int playerHealth = 100;
-        public int enemyHealth = 100;
-        public int maxHealth = 100;
+        // public int playerHealth = 100;
+        // public int enemyHealth = 100;
+        // public int maxHealth = 100;
 
         [Header("Turn Control")]
         public bool isPlayerTurn = true;
@@ -56,7 +59,13 @@ namespace BattleSystem
         {
             isPlayerTurn = true;
             currentState = BattleState.PlayerTurn;
+            effectResolver.ProcessDamageOverTimeEffects(EffectTarget.Self);
             cardsPlayedThisTurn = 0;
+
+            if (playerController.IsDead()){
+                GameOver(false);
+                Debug.Log("Player hp below 0, lose");
+            }
             
             Debug.Log("Player's turn starts");
         }
@@ -64,7 +73,7 @@ namespace BattleSystem
         // player's turn ends
         public void EndPlayerTurn()
         {
-            // chack hand card amount, discard randomly unitl 6
+            // check hand card amount, discard randomly unitl 6
             while (cardManager.IsHandOverLimit())
             {
                 cardManager.DiscardRandomHandCard();
@@ -90,7 +99,7 @@ namespace BattleSystem
             cardManager.DiscardPreparationArea();
 
             // check if game is over
-            if (enemyHealth <= 0)
+            if (enemyController.currentHealth <= 0)
             {
                 GameOver(true);
                 yield break;
@@ -109,11 +118,11 @@ namespace BattleSystem
             Debug.Log("Enemy's turn starts");
             
             // simple enemy ai: deal 15 dmg to player
-            playerHealth -= 15;
-            Debug.Log($"enemy attack! Player suffer 3 points of dmg, curret hp: {playerHealth}");
+            playerController.TakeDamage(15);
+            Debug.Log($"enemy attack! Player suffer 15 points of dmg, curret hp: {playerController.currentHealth}");
             
             // check if game is over
-            if (playerHealth <= 0)
+            if (playerController.currentHealth <= 0)
             {
                 GameOver(false);
                 return;

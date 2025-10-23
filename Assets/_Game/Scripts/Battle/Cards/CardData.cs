@@ -28,7 +28,7 @@ namespace BattleSystem
         ModifyDamage,        // change damage
         BlockHeal,           // block heal
         CopyEffect,          // copy effect
-        ConditionalEffect    // conditional effect
+        ConditionalEffect,   // conditional effect
     }
 
     // effect target
@@ -46,8 +46,11 @@ namespace BattleSystem
     public enum StatusEffectType
     {
         None,
+        DamageOverTime,     // damage caused every round
+        DoubleNextDamage,   // double next damage
+        DamageModifier,     // modify 
         BlockNextHeal,      // block next heal
-        DamageModifier,     // change damage
+        // DamageModifier,     // change damage
         ReflectDamage       // rebound damage
     }
 
@@ -134,7 +137,8 @@ namespace BattleSystem
                         break;
                     
                     case CardEffectType.ApplyBuff:
-        
+                        desc += $"Apply {effect.statusType}, lasts for ({effect.statusDuration} rounds)\n";
+                        break;
                         
                     case CardEffectType.ApplyDebuff:
                         desc += $"Apply {effect.statusType}, lasts for ({effect.statusDuration} rounds)\n";

@@ -8,12 +8,15 @@ namespace BattleSystem
     {
         public BattleManager battleManager;
         public CardManager cardManager;
+        public CharacterController characterController;
+        public PlayerController playerController;
+        public EnemyController enemyController;
 
         [Header("current turn status")]
         public CardAttribute currentGlobalAttribute = CardAttribute.None;
         public List<StatusEffect> activeStatusEffects = new List<StatusEffect>();
 
-        // 解析并执行暂存区所有卡牌效果
+
         // resolve and execute every card in preparation area
         public IEnumerator ResolvePreparationEffects(List<CardData> preparationCards)
         {
@@ -21,7 +24,7 @@ namespace BattleSystem
 
             // resit status
             currentGlobalAttribute = CardAttribute.None;
-            
+
             // store sequence the card been executed
             List<CardEffect> effectsToExecute = new List<CardEffect>();
 
@@ -57,11 +60,11 @@ namespace BattleSystem
                 case CardEffectType.Damage:
                     yield return StartCoroutine(ApplyDamage(effect));
                     break;
-                    
+
                 case CardEffectType.Heal:
                     yield return StartCoroutine(ApplyHeal(effect));
                     break;
-                    
+
                 case CardEffectType.ChangePreviousAttribute:
                     ChangePreviousAttribute(effect);
                     break;
@@ -69,20 +72,20 @@ namespace BattleSystem
                 case CardEffectType.ChangeNextAttribute:
                     ChangeNextAttribute(effect);
                     break;
-                    
+
                 case CardEffectType.SetGlobalAttribute:
                     SetGlobalAttribute(effect);
                     break;
-                    
+
                 case CardEffectType.ApplyBuff:
                 case CardEffectType.ApplyDebuff:
                     ApplyStatusEffect(effect);
                     break;
-                    
+
                 case CardEffectType.BlockHeal:
                     ApplyHealBlock(effect);
                     break;
-                    
+
                 case CardEffectType.DrawCard:
                     ApplyDrawCard(effect);
                     break;
@@ -107,14 +110,14 @@ namespace BattleSystem
             // apply damage to target
             if (effect.target == EffectTarget.Enemy || effect.target == EffectTarget.Both)
             {
-                battleManager.enemyHealth -= damage;
-                Debug.Log($"deal {damage} {attribute}attribute damage to enemy, enemy hp: {battleManager.enemyHealth}");
+                enemyController.TakeDamage(damage);
+                Debug.Log($"deal {damage} {attribute}attribute damage to enemy, enemy hp: {enemyController.currentHealth}");
             }
 
             if (effect.target == EffectTarget.Self || effect.target == EffectTarget.Both)
             {
-                battleManager.playerHealth -= damage;
-                Debug.Log($"deal {damage} {attribute}attribute damage, player hp: {battleManager.playerHealth}");
+                playerController.TakeDamage(damage);
+                Debug.Log($"deal {damage} {attribute}attribute damage, player hp: {playerController.currentHealth}");
             }
 
             yield return null;
@@ -134,14 +137,15 @@ namespace BattleSystem
 
             if (effect.target == EffectTarget.Self || effect.target == EffectTarget.Both)
             {
-                battleManager.playerHealth = Mathf.Min(battleManager.playerHealth + healAmount, battleManager.maxHealth);
-                Debug.Log($"player heals {healAmount} hp, player hp: {battleManager.playerHealth}");
+                // battleManager.playerHealth = Mathf.Min(battleManager.playerHealth + healAmount, battleManager.maxHealth);
+                playerController.Heal(healAmount);
+                Debug.Log($"player heals {healAmount} hp, player hp: {playerController.currentHealth}");
             }
 
             if (effect.target == EffectTarget.Enemy || effect.target == EffectTarget.Both)
             {
-                battleManager.enemyHealth = Mathf.Min(battleManager.enemyHealth + healAmount, battleManager.maxHealth);
-                Debug.Log($"enemy heals {healAmount} hp, enemy hp: {battleManager.enemyHealth}");
+                enemyController.Heal(healAmount);
+                Debug.Log($"enemy heals {healAmount} hp, enemy hp: {enemyController.currentHealth}");
             }
 
             yield return null;
@@ -170,16 +174,76 @@ namespace BattleSystem
         // apply staus effect
         private void ApplyStatusEffect(CardEffect effect)
         {
-            StatusEffect newStatus = new StatusEffect
-            {
-                type = effect.statusType,
-                duration = effect.statusDuration,
-                target = effect.target
-            };
-            
+            StatusEffect newStatus = new StatusEffect();
+            newStatus.type = effect.statusType;
+            newStatus.duration = effect.statusDuration;
+            newStatus.target = effect.target;
+            newStatus.value = effect.value;
+            newStatus.attribute = effect.attribute;
+            newStatus.displayName = GetStatusEffectDisplayName(effect.statusType, effect.attribute);
+
             activeStatusEffects.Add(newStatus);
-            Debug.Log($"apply status effect: {effect.statusType}, duration: {effect.statusDuration} rounds");
+            Debug.Log($"apply status effect: {effect.statusType}, duration: {effect.statusDuration} rounds, deals {effect.value} each round");
         }
+
+        // apply continuous damage (called when every round started)
+        public void ProcessDamageOverTimeEffects(EffectTarget turnOwner)
+        {
+            List<StatusEffect> effectsToRemove = new List<StatusEffect>();
+            foreach (StatusEffect status in activeStatusEffects)
+            {
+                if (status.target == turnOwner || status.target == EffectTarget.Both)
+                {
+                    switch (status.type)
+                    {
+                        case StatusEffectType.DamageOverTime:
+                            ApplyContinuousDamage(status, turnOwner);
+                            break;
+                            // other status effect type
+                    }
+
+                    // reduce duration
+                    status.duration--;
+
+                    // mark effects that need to be removed
+                    if (status.duration <= 0)
+                    {
+                        effectsToRemove.Add(status);
+                    }
+                }
+            }
+
+            // remove expired effects
+            foreach (StatusEffect expiredEffect in effectsToRemove)
+            {
+                activeStatusEffects.Remove(expiredEffect);
+                Debug.Log($"effect: {expiredEffect.type} expired");
+            }
+        }
+
+        // apply continuous dmamge
+        private void ApplyContinuousDamage(StatusEffect dotEffect, EffectTarget target)
+        {
+            int damage = dotEffect.value;
+            CardAttribute damageAttribute = dotEffect.attribute;
+            string effectName = GetContinuousDamageName(damageAttribute);
+
+            if (target == EffectTarget.Enemy || target == EffectTarget.Both)
+            {
+                enemyController.TakeDamage(damage);
+                Debug.Log($"{effectName} deals {damage} damage to enemy, enemy hp: {enemyController.currentHealth}");
+            }
+
+            if (target == EffectTarget.Self || target == EffectTarget.Both)
+            {
+                playerController.TakeDamage(damage);
+                Debug.Log($"{effectName} deals {damage} damage to player, player hp: {playerController.currentHealth}");
+            }
+
+            Debug.Log($"{effectName} duration: {dotEffect.duration} rounds");
+        }
+
+
 
         // apply heal block
         private void ApplyHealBlock(CardEffect effect)
@@ -190,7 +254,7 @@ namespace BattleSystem
                 duration = 1, // lasts once only
                 target = effect.target
             };
-            
+
             activeStatusEffects.Add(healBlock);
             Debug.Log($"{effect.target}'s heal been blocked");
         }
@@ -221,7 +285,7 @@ namespace BattleSystem
         {
             foreach (StatusEffect status in activeStatusEffects)
             {
-                if (status.type == StatusEffectType.BlockNextHeal && 
+                if (status.type == StatusEffectType.BlockNextHeal &&
                     (status.target == target || status.target == EffectTarget.Both))
                 {
                     return true;
@@ -244,14 +308,41 @@ namespace BattleSystem
                 }
             }
         }
-    }
 
-    // status effect category
-    [System.Serializable]
-    public class StatusEffect
-    {
-        public StatusEffectType type;
-        public int duration;
-        public EffectTarget target;
+        // get status effect display name
+        private string GetStatusEffectDisplayName(StatusEffectType effectType, CardAttribute effectAttribute)
+        {
+            if (effectType == StatusEffectType.DamageOverTime)
+            {
+                return GetContinuousDamageName(effectAttribute);
+            }
+            return effectType.ToString();
+        }
+
+        // get continuous damage name 
+        private string GetContinuousDamageName(CardAttribute attribute)
+        {
+            switch (attribute)
+            {
+                case CardAttribute.Fire:
+                    return "burn effect";
+                default:
+                    return "continuous damage effect";
+            }
+        }
+
+        // status effect category
+        [System.Serializable]
+        public class StatusEffect
+        {
+            public StatusEffectType type;          // effect type
+            public int duration;                   // effect duration
+            public EffectTarget target;            // effect target
+            public int value;                      // effect value
+            public CardAttribute attribute;        // effect attribute
+            public string displayName;             // effect name
+
+            public StatusEffect() {}
+        }
     }
 }
