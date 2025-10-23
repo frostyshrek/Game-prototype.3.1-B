@@ -87,4 +87,36 @@ public class GameState : MonoBehaviour
             PlayerPrefs.GetFloat(PFX+"rz", 0));
         CheckpointRot = Quaternion.Euler(r);
     }
+
+    // ---- Encounter tracking ----
+    public string LastEncounterId { get; private set; } = null;
+    HashSet<string> _defeatedEncounters = new HashSet<string>();
+
+    public void SetLastEncounterId(string id) => LastEncounterId = id;
+
+    public void MarkEncounterDefeated(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return;
+        _defeatedEncounters.Add(id);
+        // Optional: persist
+        PlayerPrefs.SetString("GS_defeated", string.Join(",", _defeatedEncounters));
+        PlayerPrefs.Save();
+    }
+
+    public bool IsEncounterDefeated(string id)
+    {
+        return !string.IsNullOrEmpty(id) && _defeatedEncounters.Contains(id);
+    }
+
+    // load defeated set when booting
+    void Start()
+    {
+        var saved = PlayerPrefs.GetString("GS_defeated", "");
+        if (!string.IsNullOrEmpty(saved))
+        {
+            _defeatedEncounters.Clear();
+            foreach (var s in saved.Split(','))
+                if (!string.IsNullOrEmpty(s)) _defeatedEncounters.Add(s);
+        }
+    }
 }

@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// TODO: when the battle ends, you can just do UnityEngine.SceneManagement.SceneManager.LoadScene("Glade");
-
 [RequireComponent(typeof(Collider))]
 public class EnemyEncounterTrigger : MonoBehaviour
 {
+    [Header("Encounter Id (unique per enemy)")]
+    public string encounterId = "Skeleton_01";
+
     [Header("Scene to load on encounter")]
     public string battleSceneName = "Battle";
 
@@ -17,32 +18,40 @@ public class EnemyEncounterTrigger : MonoBehaviour
 
     void Reset()
     {
-        // make sure collider is a trigger
         var c = GetComponent<Collider>();
         c.isTrigger = true;
     }
 
+    void Start()
+    {
+        // If this encounter was already cleared, hide it
+        if (GameState.I != null && GameState.I.IsEncounterDefeated(encounterId))
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
-        if (triggered) return;
-        if (!other.CompareTag("Player")) return;
+        if (triggered || !other.CompareTag("Player")) return;
 
         triggered = true;
-        gameObject.SetActive(false);
+        gameObject.SetActive(false); // hide immediately to avoid re-trigger
 
-        // Save checkpoint for respawn (optional)
         if (GameState.I != null)
+        {
             GameState.I.SetCheckpoint(other.transform);
+            GameState.I.SetLastEncounterId(encounterId); // <-- remember who started this battle
+        }
 
-        // Optional effect or sound
         if (encounterEffect) Instantiate(encounterEffect, transform.position, Quaternion.identity);
 
-        // Delay load if you want a flash/fade
         Invoke(nameof(LoadBattleScene), delayBeforeLoad);
     }
 
     void LoadBattleScene()
     {
-        SceneManager.LoadScene(battleSceneName);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(battleSceneName);
     }
 }
+

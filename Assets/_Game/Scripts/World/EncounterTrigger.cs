@@ -1,11 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// TODO: call this from the battle controller when enemies are defeated
-//
-// GameState.I.GiveKey(KeyItem.AncientKey);
-// UnityEngine.SceneManagement.SceneManager.LoadScene("Glade");
-
 [RequireComponent(typeof(Collider))]
 public class EncounterTrigger : MonoBehaviour
 {
