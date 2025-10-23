@@ -57,7 +57,7 @@ public class CameraOrbitFollow : MonoBehaviour
         if (Time.timeScale == 0f) return;
         if (!target) return;
 
-        // Optional: allow unlock (pause menus, etc.)
+        // allow unlock (pause menus, etc.)
         if (Input.GetKeyDown(toggleUnlockKey))
         {
             lockCursor = !lockCursor;

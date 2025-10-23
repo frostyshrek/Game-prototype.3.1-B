@@ -33,6 +33,6 @@ public class FadeOutText : MonoBehaviour
             yield return null;
         }
         group.alpha = 0f;
-        gameObject.SetActive(false); // optional: disable after fade
+        gameObject.SetActive(false); // disable after fade
     }
 }

@@ -29,6 +29,7 @@ public class EnemyEncounterTrigger : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
+        Debug.Log($"[{name}] encounterId={encounterId} defeated? {GameState.I?.IsEncounterDefeated(encounterId)}");
     }
 
     void OnTriggerEnter(Collider other)
