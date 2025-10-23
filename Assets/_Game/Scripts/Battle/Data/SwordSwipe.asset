@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SwordSwipe
   m_EditorClassIdentifier: 
   cardName: Sword Swipe
-  description: 
+  description: Attack with your Sword!
   effects:
   - effectType: 0
     target: 1

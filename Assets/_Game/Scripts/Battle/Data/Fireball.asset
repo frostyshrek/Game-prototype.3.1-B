@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fireball
   m_EditorClassIdentifier: 
   cardName: Fireball
-  description: 
+  description: Cast a Fireball that deals damage over time!
   effects:
   - effectType: 0
     target: 1

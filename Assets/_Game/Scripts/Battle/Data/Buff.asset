@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Buff
   m_EditorClassIdentifier: 
   cardName: Rage Shout
-  description: 
+  description: Doubles Damage of next Attack!
   effects:
   - effectType: 7
     target: 0
