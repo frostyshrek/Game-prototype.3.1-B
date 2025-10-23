@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BattleSystem
 {
@@ -11,6 +12,10 @@ namespace BattleSystem
         public PlayerController playerController;
         public EnemyController enemyController;
         public CharacterController characterController;
+
+        [Header("Testing")]
+        [SerializeField] private List<CardData> prototypeHand = new List<CardData>(); // put 3 cards here
+        [SerializeField] private BattleSystem.HandUIController handUI;
         
         // [Header("Battle State")]
         public BattleState currentState = BattleState.PlayerTurn;
@@ -36,16 +41,40 @@ namespace BattleSystem
             InitializeBattle();
         }
 
-        // initialize battle
+
         void InitializeBattle()
         {
-            // using testing cards for now, will link to inventory
-            List<CardData> testDeck = CreateTestDeck();
-            cardManager.InitializeDeck(testDeck);
-            cardManager.DrawStartingHand();
-            
-            Debug.Log("Battle initialization finished, player hand card number: " + cardManager.playerHand.Count);
+            // Make sure CardManager is clean
+            cardManager.playerHand.Clear();
+            cardManager.preparationArea.Clear();
+            cardManager.discardPile.Clear();
+            cardManager.drawPile.Clear();
+
+            // Put exactly the cards you want into hand
+            cardManager.playerHand = new List<CardData>(prototypeHand);
+
+            // Show them in UI
+            var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
+            if (handUI != null)
+                handUI.RebuildHand(cardManager.playerHand);
+
+            Debug.Log($"Prototype init: hand={cardManager.playerHand.Count} cards");
         }
+
+        // initialize battle
+        // void InitializeBattle()
+        // {
+        //     // using testing cards for now, will link to inventory
+        //     List<CardData> testDeck = CreateTestDeck();
+        //     cardManager.InitializeDeck(testDeck);
+        //     cardManager.DrawStartingHand();
+
+        //     var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
+        //     if (handUI != null)
+        //         handUI.RebuildHand(cardManager.playerHand);
+            
+        //     Debug.Log("Battle initialization finished, player hand card number: " + cardManager.playerHand.Count);
+        // }
 
         // crate testing card deck (10 cards)
         List<CardData> CreateTestDeck()
@@ -133,13 +162,32 @@ namespace BattleSystem
         }
 
         // end of enemy's turn 
-        void EndEnemyTurn()
+        // void EndEnemyTurn()
+        // {
+        //     // draw cards
+        //     cardManager.DrawTurnCards();
+        //     var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
+        //     if (handUI != null)
+        //         handUI.RebuildHand(cardManager.playerHand);
+    
+        //     Debug.Log($"draw card. {cardManager.GetDeckInfo()}");
+    
+        //     StartPlayerTurn();
+        // }
+
+        void EndEnemyTurn() 
         {
-            // draw cards
-            cardManager.DrawTurnCards();
-    
-            Debug.Log($"draw card. {cardManager.GetDeckInfo()}");
-    
+            // Prototype: always restore the same 3 cards
+            cardManager.preparationArea.Clear();
+            cardManager.playerHand = new List<CardData>(prototypeHand);
+            cardManager.discardPile.Clear(); // optional, keeps it simple
+            cardManager.drawPile.Clear();    // we’re not using draw pile
+
+            var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
+            if (handUI != null)
+                handUI.RebuildHand(cardManager.playerHand);
+
+            Debug.Log("Prototype refresh: restored fixed hand.");
             StartPlayerTurn();
         }
 
@@ -148,6 +196,21 @@ namespace BattleSystem
         {
             currentState = BattleState.GameOver;
             Debug.Log(playerWon ? "win!" : "lose!");
+
+            if (playerWon && GameState.I != null)
+            {
+                // Mark the encounter that launched this battle as cleared
+                GameState.I.MarkEncounterDefeated(GameState.I.LastEncounterId);
+                GameState.I.GiveKey(KeyItem.AncientKey);
+            }
+
+            StartCoroutine(ReturnToGladeAfterDelay(1.5f));
+        }
+
+        IEnumerator ReturnToGladeAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            SceneManager.LoadScene("Glade");
         }
 
         // end turn button for this method

@@ -104,17 +104,22 @@ namespace BattleSystem
         // use card from hand
         public bool PlaceCardToPreparation(int handIndex)
         {
-            if (handIndex >= 0 && handIndex < playerHand.Count)
+            if (handIndex < 0 || handIndex >= playerHand.Count)
             {
-                CardData usedCard = playerHand[handIndex];
-                playerHand.RemoveAt(handIndex);
-                // After using the card, it enters the reserve area instead of going immediately to discard pile
+                Debug.LogWarning("preparation index invalid: PlaceCardToPreparation");
+                return false;
             }
+            if (preparationArea.Count >= maxPreparationSlots)
+            {
+                Debug.LogWarning("preparation area full");
+                return false;
+            }
+
             CardData card = playerHand[handIndex];
             playerHand.RemoveAt(handIndex);
             preparationArea.Add(card);
 
-            Debug.Log($"card placed to preparation area: {card.cardName}, number of cards in preparation area: {preparationArea.Count}/{maxPreparationSlots}");
+            OnPreparationChanged?.Invoke();
             return true;
         }
 
@@ -132,6 +137,8 @@ namespace BattleSystem
             playerHand.Add(card);
 
             Debug.Log($"card taken from preparation area: {card.cardName}, number of cards in preparation area: {preparationArea.Count}/{maxPreparationSlots}");
+            
+            OnPreparationChanged?.Invoke();
             return true;
         }
 
@@ -150,6 +157,8 @@ namespace BattleSystem
             preparationArea[indexB] = temp;
 
             Debug.Log($"Preparation area card swap: {indexA} <-> {indexB}");
+
+            OnPreparationChanged?.Invoke();
         }
 
         // discard preparation area cards to discard pile
@@ -161,6 +170,16 @@ namespace BattleSystem
                 Debug.Log($"preparation area cards discard: {preparationArea.Count} cards");
                 preparationArea.Clear();
             }
+
+            OnPreparationChanged?.Invoke();
+        }
+
+
+        public event System.Action OnPreparationChanged;
+
+        public int GetPreparationIndex(CardData card)
+        {
+            return preparationArea.IndexOf(card); // -1 if not found
         }
 
         // get preparation card list

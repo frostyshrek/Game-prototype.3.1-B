@@ -276,8 +276,36 @@ namespace BattleSystem
         // Calculate final damage (considering attribute conflict, etc.)
         private int CalculateFinalDamage(int baseDamage, CardAttribute attribute)
         {
-            // TODO: Attribute conflict logic applied here
-            return baseDamage;
+            int damage = baseDamage;
+
+            // Flat modifiers first
+            for (int i = 0; i < activeStatusEffects.Count; i++)
+            {
+                var s = activeStatusEffects[i];
+                if (s.type == StatusEffectType.DamageModifier && (s.target == EffectTarget.Self || s.target == EffectTarget.Both))
+                {
+                    damage += s.value;
+                    // If the modifier should last multiple hits/turns, control via s.duration elsewhere.
+                    // We just apply it here; duration is reduced in CleanupTurnEffects.
+                }
+            }
+
+            // One-shot: DoubleNextDamage (consume 1 stack immediately)
+            for (int i = 0; i < activeStatusEffects.Count; i++)
+            {
+                var s = activeStatusEffects[i];
+                if (s.type == StatusEffectType.DoubleNextDamage && (s.target == EffectTarget.Self || s.target == EffectTarget.Both))
+                {
+                    damage *= 2;
+                    s.duration -= 1; // consume now
+                    if (s.duration <= 0) activeStatusEffects.RemoveAt(i--);
+                    break; // only one double per hit
+                }
+            }
+
+            // You can also factor 'attribute' here if you add elemental multipliers later
+
+            return Mathf.Max(0, damage);
         }
 
         // check is heal been blocked

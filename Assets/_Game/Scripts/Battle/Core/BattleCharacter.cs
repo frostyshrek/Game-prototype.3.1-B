@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace BattleSystem
 {
-    public class CharacterController : MonoBehaviour
+    public class BattleCharacter : MonoBehaviour
     {
         [Header("charactor info")]
         public int maxHealth = 100;
