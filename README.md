@@ -29,10 +29,11 @@ Explore the **Glade** to discover enemies and collect **Ancient Keys** needed to
 ---
 
 ### Starting the Game
-1. Open the Page Link at the top of the README File.  
-2. Use the player controls to move around the environment.  
-3. When you approach an enemy, a **battle scene** will automatically load.  
-4. Once in battle, use your **cards** to attack, defend, and combo against the enemy.
+1. Open the Page Link at the top of the README File.
+2. If Enemy is was once defeated and is not spawning again, Clear cache for that page.
+3. Use the player controls to move around the environment.  
+4. When you approach an enemy, a **battle scene** will automatically load.  
+5. Once in battle, use your **cards** to attack, defend, and combo against the enemy.
 
 ---
 
