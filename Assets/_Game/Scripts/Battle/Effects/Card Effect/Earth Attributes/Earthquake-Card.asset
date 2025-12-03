@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78ca935446c0840c38c4e822d126db48, type: 3}
-  m_Name: SwordSwipe
+  m_Name: Earthquake-Card
   m_EditorClassIdentifier: 
-  cardName: Sword Swipe
-  description: Attack with your Sword!
+  cardName: Earthquake
+  description: Shake the Earth beneath them
+  energyCost: 50
   effects:
   - effectType: 0
     target: 1
-    value: 10
-    attribute: 0
+    value: 20
+    attribute: 3
     statusType: 0
     statusDuration: 0
     requiredAttribute: 0
     requirePreviousCard: 0
     requireNextCard: 0
-  baseAttribute: 0
+  baseAttribute: 3

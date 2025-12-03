@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78ca935446c0840c38c4e822d126db48, type: 3}
+  m_Name: Fireball-Card
+  m_EditorClassIdentifier: 
+  cardName: Fireball
+  description: Cast a Fireball that deals damage over time!
+  energyCost: 30
+  effects:
+  - effectType: 0
+    target: 1
+    value: 5
+    attribute: 1
+    statusType: 1
+    statusDuration: 2
+    requiredAttribute: 0
+    requirePreviousCard: 0
+    requireNextCard: 0
+  baseAttribute: 1

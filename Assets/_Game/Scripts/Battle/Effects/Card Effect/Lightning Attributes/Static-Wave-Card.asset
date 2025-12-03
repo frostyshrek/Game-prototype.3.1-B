@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78ca935446c0840c38c4e822d126db48, type: 3}
-  m_Name: Fireball
+  m_Name: Static-Wave-Card
   m_EditorClassIdentifier: 
-  cardName: Fireball
-  description: Cast a Fireball that deals damage over time!
+  cardName: Static Wave
+  description: Shock them with static
+  energyCost: 10
   effects:
   - effectType: 0
     target: 1
-    value: 5
-    attribute: 1
-    statusType: 1
-    statusDuration: 2
+    value: 10
+    attribute: 4
+    statusType: 0
+    statusDuration: 0
     requiredAttribute: 0
     requirePreviousCard: 0
     requireNextCard: 0
-  baseAttribute: 1
+  baseAttribute: 4

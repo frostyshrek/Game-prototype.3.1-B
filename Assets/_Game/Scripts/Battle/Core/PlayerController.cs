@@ -17,13 +17,13 @@ namespace BattleSystem
             isPlayer = true;
             InitializeCharacter();
 
-            if (hpUIPrefab != null)
-            {
-                var ui = Instantiate(hpUIPrefab);
-                hpUI = ui.GetComponent<WorldSpaceHPUI>();
-                hpUI.target = transform;
-                hpUI.SetHP(currentHealth, maxHealth);
-            }
+            // if (hpUIPrefab != null)
+            // {
+            //     var ui = Instantiate(hpUIPrefab);
+            //     hpUI = ui.GetComponent<WorldSpaceHPUI>();
+            //     hpUI.target = transform;
+            //     hpUI.SetHP(currentHealth, maxHealth);
+            // }
 
             // subscribe to health change updates
             OnHealthChanged += HandleHealthChanged;
@@ -36,7 +36,7 @@ namespace BattleSystem
 
         private void HandleHealthChanged(int cur, int max)
         {
-            hpUI?.SetHP(cur, max);
+            // hpUI?.SetHP(cur, max);
         }
     }
 }

@@ -59,9 +59,9 @@ namespace BattleSystem
     {
         None,
         Fire,
-        Water,
+        Ice,
         Earth,
-        Air
+        Lightning
     }
 
     // effect for single card
@@ -93,6 +93,9 @@ namespace BattleSystem
         public string description;
         // public Sprite cardImage;
 
+        [Header("Costs")]
+        public int energyCost = 10;
+
         [Header("Card effect")]
         public List<CardEffect> effects;
 
@@ -104,7 +107,8 @@ namespace BattleSystem
             if (!string.IsNullOrEmpty(description))
                 return description;
 
-            string desc = "";
+            string desc = $"Cost: {energyCost} energy\n";
+
             foreach (var effect in effects)
             {
                 switch (effect.effectType)
@@ -112,7 +116,7 @@ namespace BattleSystem
                     case CardEffectType.Damage:
                         desc += $"deal {effect.value} damage";
                         if (effect.attribute != CardAttribute.None)
-                            desc += $"({effect.attribute} attribute)";
+                            desc += $" ({effect.attribute} attribute)";
                         desc += "\n";
                         break;
                         
@@ -121,15 +125,15 @@ namespace BattleSystem
                         break;
                         
                     case CardEffectType.ChangePreviousAttribute:
-                        desc += $"Change the damage of previous card to {effect. attribute} attribute\n";
+                        desc += $"Change the damage of previous card to {effect.attribute} attribute\n";
                         break;
                         
                     case CardEffectType.ChangeNextAttribute:
-                        desc += $"Change the damage of next card to {effect.attribute} attribute \n";
+                        desc += $"Change the damage of next card to {effect.attribute} attribute\n";
                         break;
 
                     case CardEffectType.SetGlobalAttribute:
-                        desc += $"Change the damage of this round to {effect. attribute} attribute\n";
+                        desc += $"Change the damage of this round to {effect.attribute} attribute\n";
                         break;
                         
                     case CardEffectType.BlockHeal:

@@ -11,27 +11,29 @@ namespace BattleSystem
         public EffectResolver effectResolver;
         public PlayerController playerController;
         public EnemyController enemyController;
-        public CharacterController characterController;
 
-        [Header("Testing")]
-        [SerializeField] private List<CardData> prototypeHand = new List<CardData>(); // put 3 cards here
-        [SerializeField] private BattleSystem.HandUIController handUI;
-        
-        // [Header("Battle State")]
+        [Header("New Battle System References")]
+        public EnemyAttackController enemyAttackController;   // attach on Enemy
+        public BattleOrbitMovement playerMovement;            // attach on Player
+        public PlayerEnergy playerEnergy;                     // attach on Player
+
+        [Header("Battle Loadout")]
+        [Tooltip("5 cards the player has chosen before entering battle")]
+        [SerializeField] private List<CardData> equippedBattleCards = new List<CardData>();  // set to 5 cards in Inspector
+        [SerializeField] private int cardsPerHand = 3;
+
+        [Header("UI")]
+        [SerializeField] private HandUIController handUI;
+
         public BattleState currentState = BattleState.PlayerTurn;
-        // public int playerHealth = 100;
-        // public int enemyHealth = 100;
-        // public int maxHealth = 100;
 
         [Header("Turn Control")]
         public bool isPlayerTurn = true;
         public int cardsPlayedThisTurn = 0;
 
-        // Battle States enum
         public enum BattleState
         {
             PlayerTurn,
-            EnemyTurn,
             ResolvingEffects,
             GameOver
         }
@@ -39,167 +41,139 @@ namespace BattleSystem
         void Start()
         {
             InitializeBattle();
-        }
 
+            // enemy starts their own continuous attack loop
+            if (enemyAttackController != null)
+            {
+                enemyAttackController.BeginAttacks();
+            }
+
+            StartPlayerTurn();
+        }
 
         void InitializeBattle()
         {
-            // Make sure CardManager is clean
             cardManager.playerHand.Clear();
             cardManager.preparationArea.Clear();
             cardManager.discardPile.Clear();
             cardManager.drawPile.Clear();
 
-            // Put exactly the cards you want into hand
-            cardManager.playerHand = new List<CardData>(prototypeHand);
+            if (handUI == null)
+            {
+                handUI = FindObjectOfType<HandUIController>(true);
+            }
 
-            // Show them in UI
-            var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
+            BuildRandomHandFromEquipped();
+            Debug.Log($"Battle init: hand={cardManager.playerHand.Count} cards (from {equippedBattleCards.Count} equipped)");
+        }
+
+        private void BuildRandomHandFromEquipped()
+        {
+            cardManager.playerHand.Clear();
+            cardManager.preparationArea.Clear();
+
+            if (equippedBattleCards == null || equippedBattleCards.Count == 0)
+            {
+                Debug.LogWarning("No equippedBattleCards set! Please assign 5 in BattleManager.");
+                return;
+            }
+
+            List<CardData> pool = new List<CardData>(equippedBattleCards);
+
+            for (int i = 0; i < cardsPerHand && pool.Count > 0; i++)
+            {
+                int randomIndex = Random.Range(0, pool.Count);
+                CardData chosen = pool[randomIndex];
+                pool.RemoveAt(randomIndex);
+
+                cardManager.playerHand.Add(chosen);
+            }
+
             if (handUI != null)
                 handUI.RebuildHand(cardManager.playerHand);
-
-            Debug.Log($"Prototype init: hand={cardManager.playerHand.Count} cards");
         }
 
-        // initialize battle
-        // void InitializeBattle()
-        // {
-        //     // using testing cards for now, will link to inventory
-        //     List<CardData> testDeck = CreateTestDeck();
-        //     cardManager.InitializeDeck(testDeck);
-        //     cardManager.DrawStartingHand();
+        // ------------------- PLAYER TURN (card selection cycle) -------------------
 
-        //     var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
-        //     if (handUI != null)
-        //         handUI.RebuildHand(cardManager.playerHand);
-            
-        //     Debug.Log("Battle initialization finished, player hand card number: " + cardManager.playerHand.Count);
-        // }
-
-        // crate testing card deck (10 cards)
-        List<CardData> CreateTestDeck()
-        {
-            // return empty for now, will change later
-            return new List<CardData>();
-        }
-
-        // player's turn
         public void StartPlayerTurn()
         {
             isPlayerTurn = true;
             currentState = BattleState.PlayerTurn;
-            effectResolver.ProcessDamageOverTimeEffects(EffectTarget.Self);
             cardsPlayedThisTurn = 0;
 
-            if (playerController.IsDead()){
+            effectResolver.ProcessDamageOverTimeEffects(EffectTarget.Self);
+
+            if (playerMovement != null)
+                playerMovement.SetCanMove(true);   // movement always allowed except GameOver
+
+            if (playerController.IsDead())
+            {
                 GameOver(false);
                 Debug.Log("Player hp below 0, lose");
+                return;
             }
             
-            Debug.Log("Player's turn starts");
+            Debug.Log("=== Player's card selection starts ===");
         }
 
-        // player's turn ends
         public void EndPlayerTurn()
         {
-            // check hand card amount, discard randomly unitl 6
+            if (currentState != BattleState.PlayerTurn) return;
+
+            // DO NOT affect movement or enemy attacks here
+            // Enemy is always attacking independently
+
+            // enforce hand size if ever needed
             while (cardManager.IsHandOverLimit())
             {
                 cardManager.DiscardRandomHandCard();
             }
             
-            Debug.Log("Player's turn ends, resolving card effects");
+            Debug.Log("Player's selection ends, resolving card effects");
             StartCoroutine(ResolveCardEffects());
         }
 
-        // resolving card effects
+        // ------------------- RESOLVE CARD EFFECTS -------------------
+
         IEnumerator ResolveCardEffects()
         {
             currentState = BattleState.ResolvingEffects;
             
-            // get cards in preparation area to resolve effects
             List<CardData> cardsToResolve = cardManager.GetPreparationCards();
-            Debug.Log($"resolving effects: {cardsToResolve.Count} cards");
+            Debug.Log($"Resolving effects: {cardsToResolve.Count} cards");
 
-            // resolving effects for cards (from left to right)
             yield return StartCoroutine(effectResolver.ResolvePreparationEffects(cardsToResolve));
     
-            // discard cards in preparation area after resolving
             cardManager.DiscardPreparationArea();
 
-            // check if game is over
             if (enemyController.currentHealth <= 0)
             {
                 GameOver(true);
                 yield break;
             }
-    
-            // start enemy's turn 
-            StartEnemyTurn();
-        }
 
-        // enemy's turn
-        void StartEnemyTurn()
-        {
-            currentState = BattleState.EnemyTurn;
-            isPlayerTurn = false;
-            
-            Debug.Log("Enemy's turn starts");
-            
-            // simple enemy ai: deal 15 dmg to player
-            playerController.TakeDamage(15);
-            Debug.Log($"enemy attack! Player suffer 15 points of dmg, curret hp: {playerController.currentHealth}");
-            
-            // check if game is over
-            if (playerController.currentHealth <= 0)
-            {
-                GameOver(false);
-                return;
-            }
-            
-            // end of enemy's turn 
-            EndEnemyTurn();
-        }
-
-        // end of enemy's turn 
-        // void EndEnemyTurn()
-        // {
-        //     // draw cards
-        //     cardManager.DrawTurnCards();
-        //     var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
-        //     if (handUI != null)
-        //         handUI.RebuildHand(cardManager.playerHand);
-    
-        //     Debug.Log($"draw card. {cardManager.GetDeckInfo()}");
-    
-        //     StartPlayerTurn();
-        // }
-
-        void EndEnemyTurn() 
-        {
-            // Prototype: always restore the same 3 cards
-            cardManager.preparationArea.Clear();
-            cardManager.playerHand = new List<CardData>(prototypeHand);
-            cardManager.discardPile.Clear(); // optional, keeps it simple
-            cardManager.drawPile.Clear();    // we’re not using draw pile
-
-            var handUI = FindObjectOfType<BattleSystem.HandUIController>(true);
-            if (handUI != null)
-                handUI.RebuildHand(cardManager.playerHand);
-
-            Debug.Log("Prototype refresh: restored fixed hand.");
+            // Immediately start next card-selection cycle with a new random hand
+            BuildRandomHandFromEquipped();
             StartPlayerTurn();
         }
 
-        // game over
-        void GameOver(bool playerWon)
+        // ------------------- GAME OVER -------------------
+
+        public void GameOver(bool playerWon)
         {
+            if (currentState == BattleState.GameOver) return;
+
             currentState = BattleState.GameOver;
             Debug.Log(playerWon ? "win!" : "lose!");
 
+            if (playerMovement != null)
+                playerMovement.SetCanMove(false);
+
+            if (enemyAttackController != null)
+                enemyAttackController.StopAttacks();   // stop continuous attacks
+
             if (playerWon && GameState.I != null)
             {
-                // Mark the encounter that launched this battle as cleared
                 GameState.I.MarkEncounterDefeated(GameState.I.LastEncounterId);
                 GameState.I.GiveKey(KeyItem.AncientKey);
             }
@@ -213,7 +187,6 @@ namespace BattleSystem
             SceneManager.LoadScene("Glade");
         }
 
-        // end turn button for this method
         public void OnEndTurnButtonClicked()
         {
             if (currentState == BattleState.PlayerTurn)

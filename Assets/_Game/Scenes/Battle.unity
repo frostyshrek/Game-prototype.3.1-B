@@ -330,6 +330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 383592426}
   - component: {fileID: 383592425}
+  - component: {fileID: 383592428}
   - component: {fileID: 383592423}
   - component: {fileID: 383592427}
   m_Layer: 0
@@ -361,7 +362,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: 0, y: 0, z: 0}
+  TargetOffset: {x: 0, y: 2, z: -4}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -388,8 +389,8 @@ MonoBehaviour:
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
-    TrackingTarget: {fileID: 0}
-    LookAtTarget: {fileID: 1684887604}
+    TrackingTarget: {fileID: 1236954570}
+    LookAtTarget: {fileID: 1236954570}
     CustomLookAtTarget: 1
   Lens:
     FieldOfView: 60
@@ -419,8 +420,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 383592422}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1279994, y: 0.5840256, z: -0.09390613, w: 0.79606026}
-  m_LocalPosition: {x: -8.2, y: 4.53, z: -3.21}
+  m_LocalRotation: {x: 0.09853763, y: 0, z: 0, w: 0.99513334}
+  m_LocalPosition: {x: -2, y: 3.4, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -478,6 +479,32 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &383592428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383592422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 625c14eee3ad46c99df7c7c891ef668a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Damping: {x: 0.1, y: 0.5, z: 0.3}
+  ShoulderOffset: {x: 0, y: 2, z: -4}
+  VerticalArmLength: 0.4
+  CameraSide: 1
+  CameraDistance: 2
+  AvoidObstacles:
+    Enabled: 0
+    CollisionFilter:
+      serializedVersion: 2
+      m_Bits: 1
+    IgnoreTag: 
+    CameraRadius: 0.2
+    DampingIntoCollision: 0
+    DampingFromCollision: 0.5
 --- !u!1 &474873688
 GameObject:
   m_ObjectHideFlags: 0
@@ -1365,7 +1392,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6024121734727790879, guid: 3eff58191acaa764b87a15298d3214eb, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1374,6 +1401,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3274554032551853104, guid: 3eff58191acaa764b87a15298d3214eb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1236954563}
+    - targetCorrespondingSourceObject: {fileID: 3274554032551853104, guid: 3eff58191acaa764b87a15298d3214eb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1236954571}
+    - targetCorrespondingSourceObject: {fileID: 3274554032551853104, guid: 3eff58191acaa764b87a15298d3214eb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1236954572}
   m_SourcePrefab: {fileID: 100100000, guid: 3eff58191acaa764b87a15298d3214eb, type: 3}
 --- !u!1 &1236954554 stripped
 GameObject:
@@ -1401,6 +1434,46 @@ MonoBehaviour:
   cardManager: {fileID: 0}
   battleManager: {fileID: 0}
   hpUIPrefab: {fileID: 6235556689482089394, guid: 41e184d4e5b966e4a968d31a6869bc0e, type: 3}
+--- !u!4 &1236954570 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3195813593748614062, guid: 3eff58191acaa764b87a15298d3214eb, type: 3}
+  m_PrefabInstance: {fileID: 1236954553}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1236954571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236954554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e4680819ece6b442979f062ef3436b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemy: {fileID: 1684887604}
+  radius: 10
+  moveSpeedDegPerSec: 60
+  jumpHeight: 1
+  gravity: -9.81
+  dashAngle: 35
+  dashDuration: 0.15
+  doubleTapTime: 0.25
+  dashCooldown: 0.8
+  duckHeightScale: 0.5
+--- !u!114 &1236954572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236954554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 353e21fec475335449c07ce2a71c672c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxEnergy: 100
 --- !u!1 &1261246605
 GameObject:
   m_ObjectHideFlags: 0
@@ -1680,6 +1753,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7126592314564560022, guid: bedc51c6c7f096e448e33d142b1a28f4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1684887613}
+    - targetCorrespondingSourceObject: {fileID: 7126592314564560022, guid: bedc51c6c7f096e448e33d142b1a28f4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1684887621}
   m_SourcePrefab: {fileID: 100100000, guid: bedc51c6c7f096e448e33d142b1a28f4, type: 3}
 --- !u!1 &1684887603 stripped
 GameObject:
@@ -1703,14 +1779,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efb441e48d68cf947a3f75f11120f826, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 100
+  maxHealth: 150
+  currentHealth: 150
   isPlayer: 0
   healthBarSlider: {fileID: 0}
   healthText: {fileID: 0}
   damageTextPrefab: {fileID: 0}
   battleManager: {fileID: 0}
   hpUIPrefab: {fileID: 6235556689482089394, guid: 41e184d4e5b966e4a968d31a6869bc0e, type: 3}
+--- !u!114 &1684887621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684887603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 702ef4d76b97e3f4c889f290f2a0b4a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 1236954571}
+  playerEnergy: {fileID: 1236954572}
+  playerCharacter: {fileID: 1236954563}
+  timeBetweenAttacks: 3
+  telegraphTime: 1.2
+  damageOnHit: 10
+  refillEnergyOnSuccessfulDodge: 1
 --- !u!1 &1781890929
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace BattleSystem
 {
@@ -12,7 +13,7 @@ namespace BattleSystem
 
         [Header("UI")]
         public Slider healthBarSlider;
-        public Text healthText;
+        public TMP_Text healthText;
         public GameObject damageTextPrefab;
 
         // [Header("视觉效果")]

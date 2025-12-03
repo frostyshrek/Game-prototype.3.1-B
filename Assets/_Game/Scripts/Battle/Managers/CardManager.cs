@@ -3,22 +3,27 @@ using UnityEngine;
 
 namespace BattleSystem
 {
-    public class CardManager : MonoBehaviour{
+    public class CardManager : MonoBehaviour
+    {
         [Header("card data")]
-        public List<CardData> playerDeck = new List<CardData>();  // player deck
-        public List<CardData> playerHand = new List<CardData>();  // player hand card
-        public List<CardData> preparationArea = new List<CardData>(); // preparation area to hold cards during player's turn
-        public List<CardData> discardPile = new List<CardData>(); // discard pile
-        public List<CardData> drawPile = new List<CardData>();    // draw pile
+        public List<CardData> playerDeck = new List<CardData>();      // player deck
+        public List<CardData> playerHand = new List<CardData>();      // player hand
+        public List<CardData> preparationArea = new List<CardData>(); // cards chosen this turn
+        public List<CardData> discardPile = new List<CardData>();     // discard pile
+        public List<CardData> drawPile = new List<CardData>();        // draw pile
 
         [Header("amount limit")]
         public int maxHandSize = 6;
         public int startingHandSize = 5;
-        public int cardsPerTurn = 3; // Number of draws per turn
+        public int cardsPerTurn = 3;
         public int maxCardsPerTurn = 3;
         public int maxPreparationSlots = 3;
 
-        // initialze deck
+        [Header("Energy")]
+        public PlayerEnergy playerEnergy;
+
+        // ---- deck init / draw (unchanged) ----
+
         public void InitializeDeck(List<CardData> selectedDeck)
         {
             playerDeck = new List<CardData>(selectedDeck);
@@ -29,7 +34,6 @@ namespace BattleSystem
             ShuffleDrawPile();
         }
 
-        // shuffle draw pile
         public void ShuffleDrawPile()
         {
             for (int i = 0; i < drawPile.Count; i++)
@@ -41,7 +45,6 @@ namespace BattleSystem
             }
         }
 
-        // draw cards
         public void DrawCards(int amount)
         {
             for (int i = 0; i < amount; i++)
@@ -53,22 +56,18 @@ namespace BattleSystem
                 }
                 else
                 {
-                    // if no cards to draw (which should never happen)
                     Debug.LogWarning("draw pile is empty, couldn't draw cards");
                     break;
                 }
             }
         }
 
-        // draw single card
         public CardData DrawSingleCard()
         {
-            // check discard pile if draw pile is empty
             if (drawPile.Count == 0)
             {
                 if (discardPile.Count > 0)
                 {
-                    // shuffle discard pile to draw pile 
                     drawPile = new List<CardData>(discardPile);
                     discardPile.Clear();
                     ShuffleDrawPile();
@@ -76,32 +75,29 @@ namespace BattleSystem
                 }
                 else
                 {
-                    // no card to draw at all (which should never happen)
                     return null;
                 }
             }
 
-            // draw card
             CardData drawnCard = drawPile[0];
             drawPile.RemoveAt(0);
             return drawnCard;
         }
 
-        // draw starting hand card
         public void DrawStartingHand()
         {
             DrawCards(startingHandSize);
             Debug.Log($"draw starting hand card, current hand card number: {playerHand.Count}");
         }
 
-        // draw card at start turn
         public void DrawTurnCards()
         {
             DrawCards(cardsPerTurn);
             Debug.Log($"Round draw, current hand count: {playerHand.Count}");
         }
 
-        // use card from hand
+        // ---- playing cards / preparation area ----
+
         public bool PlaceCardToPreparation(int handIndex)
         {
             if (handIndex < 0 || handIndex >= playerHand.Count)
@@ -116,6 +112,17 @@ namespace BattleSystem
             }
 
             CardData card = playerHand[handIndex];
+
+            // Spend energy when card is placed into the combo
+            if (playerEnergy != null && card.energyCost > 0)
+            {
+                if (!playerEnergy.TrySpend(card.energyCost))
+                {
+                    Debug.Log($"Not enough energy to play card: {card.cardName} (cost {card.energyCost})");
+                    return false;
+                }
+            }
+
             playerHand.RemoveAt(handIndex);
             preparationArea.Add(card);
 
@@ -123,7 +130,6 @@ namespace BattleSystem
             return true;
         }
 
-        // retrieve card from preparation area
         public bool RetrieveCardFromPreparation(int preparationIndex)
         {
             if (preparationIndex < 0 || preparationIndex >= preparationArea.Count)
@@ -142,7 +148,6 @@ namespace BattleSystem
             return true;
         }
 
-        // swap cards in preparation area
         public void SwapPreparationCards(int indexA, int indexB)
         {
             if (indexA < 0 || indexA >= preparationArea.Count ||
@@ -161,7 +166,6 @@ namespace BattleSystem
             OnPreparationChanged?.Invoke();
         }
 
-        // discard preparation area cards to discard pile
         public void DiscardPreparationArea()
         {
             if (preparationArea.Count > 0)
@@ -174,29 +178,25 @@ namespace BattleSystem
             OnPreparationChanged?.Invoke();
         }
 
-
         public event System.Action OnPreparationChanged;
 
         public int GetPreparationIndex(CardData card)
         {
-            return preparationArea.IndexOf(card); // -1 if not found
+            return preparationArea.IndexOf(card);
         }
 
-        // get preparation card list
         public List<CardData> GetPreparationCards()
         {
             return new List<CardData>(preparationArea);
         }   
 
+        // ---- hand limit / discard ----
 
-
-        // check if player hand card amount is over limit
         public bool IsHandOverLimit()
         {
             return playerHand.Count > maxHandSize;
         }
 
-        // discard random hand card until player holds only 6 cards
         public void DiscardRandomHandCard()
         {
             if (playerHand.Count > 0)
@@ -205,7 +205,7 @@ namespace BattleSystem
                 CardData discardedCard = playerHand[randomIndex];
                 playerHand.RemoveAt(randomIndex);
                 DiscardCard(discardedCard);
-                Debug.Log($"discard ramdom cards: {discardedCard.cardName}");
+                Debug.Log($"discard random card: {discardedCard.cardName}");
             }
         }
 
@@ -217,7 +217,6 @@ namespace BattleSystem
             }
         }
 
-        // get deck info (for debug)
         public string GetDeckInfo()
         {
             return $"hand card number: {playerHand.Count}, draw pile number: {drawPile.Count}, discard pile number: {discardPile.Count}";
