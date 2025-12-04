@@ -74,9 +74,18 @@ namespace BattleSystem
             if (healthBarSlider != null)
             {
                 healthBarSlider.maxValue = maxHealth;
-                healthBarSlider.value = currentHealth;
+
+                var smooth = healthBarSlider.GetComponent<SmoothSlider>();
+                if (smooth != null)
+                {
+                    smooth.SetTarget(currentHealth);
+                }
+                else
+                {
+                    healthBarSlider.value = currentHealth;
+                }
             }
-            
+                    
             if (healthText != null)
             {
                 healthText.text = $"{currentHealth}/{maxHealth}";

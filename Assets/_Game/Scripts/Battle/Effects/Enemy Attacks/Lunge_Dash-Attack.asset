@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5e88779d3e32f94a9d596115c83cdfd, type: 3}
   m_Name: Lunge_Dash-Attack
   m_EditorClassIdentifier: 
-  attackName: Lunge (Dash)
+  attackName: Lunge
   damage: 10
   telegraphTime: 1.2
   recoverTime: 0.5

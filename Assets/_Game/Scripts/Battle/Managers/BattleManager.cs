@@ -24,6 +24,7 @@ namespace BattleSystem
 
         [Header("UI")]
         [SerializeField] private HandUIController handUI;
+        [SerializeField] private CastButtonUI castButtonUI;
 
         public BattleState currentState = BattleState.PlayerTurn;
 
@@ -120,6 +121,17 @@ namespace BattleSystem
         {
             if (currentState != BattleState.PlayerTurn) return;
 
+            // only allow ending the "turn" if at least one card was actually played
+            if (cardManager.preparationArea == null || cardManager.preparationArea.Count == 0)
+            {
+                Debug.Log("Cannot Cast: no cards selected.");
+
+                if (castButtonUI != null)
+                    castButtonUI.FlashError();
+
+                return;
+            }
+
             // DO NOT affect movement or enemy attacks here
             // Enemy is always attacking independently
 
@@ -128,7 +140,7 @@ namespace BattleSystem
             {
                 cardManager.DiscardRandomHandCard();
             }
-            
+
             Debug.Log("Player's selection ends, resolving card effects");
             StartCoroutine(ResolveCardEffects());
         }
@@ -192,6 +204,17 @@ namespace BattleSystem
             if (currentState == BattleState.PlayerTurn)
             {
                 EndPlayerTurn();
+            }
+        }
+
+        void Update()
+        {
+            if (currentState == BattleState.PlayerTurn)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    OnEndTurnButtonClicked();
+                }
             }
         }
     }

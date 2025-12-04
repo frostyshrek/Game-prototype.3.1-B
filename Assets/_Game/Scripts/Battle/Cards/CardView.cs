@@ -5,7 +5,10 @@ using TMPro;
 
 namespace BattleSystem
 {
-    public class CardView : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    public class CardView : MonoBehaviour,
+        IPointerClickHandler,
+        IPointerEnterHandler,
+        IPointerExitHandler
     {
         [Header("UI Refs")]
         public TMP_Text titleText;          // "Card title bar" -> text
@@ -23,32 +26,64 @@ namespace BattleSystem
         public bool isSelected;
         public int resolveOrder;
 
+        [Header("Hover")]
+        [SerializeField] private float hoverLift = 55f;
+        [SerializeField] private float hoverScale = 1.2f;
+        [SerializeField] private float hoverSmooth = 12f;
+
         private HandUIController controller;
+
+        private RectTransform rect;
+        private Vector2 baseAnchoredPos;
+        private Vector3 baseScale = Vector3.one;
+        private bool hasBasePose = false;
+        private bool isHovering = false;
 
         // Called by HandUIController after Instantiate
         public void Bind(HandUIController owner, CardData data)
         {
             controller = owner;
             cardData = data;
+            rect = GetComponent<RectTransform>();
             Refresh();
             ClearSelectionVisuals();
+        }
+
+        public void SetBasePose(Vector2 anchoredPos, Vector3 scale)
+        {
+            if (rect == null)
+                rect = GetComponent<RectTransform>();
+
+            baseAnchoredPos = anchoredPos;
+            baseScale = scale;
+            hasBasePose = true;
+
+            rect.anchoredPosition = anchoredPos;
+            rect.localScale = scale;
         }
 
         public void Refresh()
         {
             if (cardData == null) return;
-            if (titleText)       titleText.text = string.IsNullOrEmpty(cardData.cardName) ? "Card" : cardData.cardName;
-            if (descriptionText) descriptionText.text = cardData.GetDescription();
+
+            if (titleText)
+                titleText.text = string.IsNullOrEmpty(cardData.cardName)
+                    ? "Card"
+                    : cardData.cardName;
+
+            // For hand view, can hide the long description for now
+            if (descriptionText)
+            {
+                // Either clear it or disable the component:
+                descriptionText.text = "";
+                // descriptionText.gameObject.SetActive(false); // if prefer hidden
+            }
 
             // if (artImage) artImage.sprite = cardData.cardImage;
 
-            // if (costText) costText.text = cardData.cost.ToString();
-        }
-
-        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e)
-        {
-            if (controller == null) return;
-            controller.OnCardClicked(this);
+            // Cost in corner – uses the CardData.energyCost we added earlier
+            if (costText)
+                costText.text = cardData.energyCost.ToString();
         }
 
         public void ApplySelectedVisuals(int order)
@@ -67,6 +102,41 @@ namespace BattleSystem
             if (highlightFrame)  highlightFrame.enabled = false;
             if (orderBadgeRoot)  orderBadgeRoot.SetActive(false);
             if (orderBadgeText)  orderBadgeText.text = "";
+        }
+
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e)
+        {
+            if (controller == null) return;
+            controller.OnCardClicked(this);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            isHovering = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            isHovering = false;
+        }
+
+        private void Update()
+        {
+            if (!hasBasePose || rect == null) return;
+
+            // pick target position + scale
+            Vector2 targetPos = baseAnchoredPos;
+            Vector3 targetScale = baseScale;
+
+            if (isHovering)
+            {
+                targetPos += new Vector2(0f, hoverLift);
+                targetScale = baseScale * hoverScale;
+            }
+
+            // smooth movement & scale
+            rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, targetPos, Time.deltaTime * hoverSmooth);
+            rect.localScale = Vector3.Lerp(rect.localScale, targetScale, Time.deltaTime * hoverSmooth);
         }
     }
 }

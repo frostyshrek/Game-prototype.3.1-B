@@ -21,6 +21,7 @@ namespace BattleSystem
 
         [Header("Energy")]
         public PlayerEnergy playerEnergy;
+        public EnergyBarFeedback energyBarFeedback;
 
         // ---- deck init / draw (unchanged) ----
 
@@ -113,12 +114,16 @@ namespace BattleSystem
 
             CardData card = playerHand[handIndex];
 
-            // Spend energy when card is placed into the combo
+            // spend energy when card is placed into the combo
             if (playerEnergy != null && card.energyCost > 0)
             {
                 if (!playerEnergy.TrySpend(card.energyCost))
                 {
                     Debug.Log($"Not enough energy to play card: {card.cardName} (cost {card.energyCost})");
+
+                    if (energyBarFeedback != null)
+                        energyBarFeedback.PlayNotEnoughEnergyFeedback();
+
                     return false;
                 }
             }

@@ -12,7 +12,11 @@ namespace BattleSystem
         [Header("Prefabs")]
         [SerializeField] private CardView cardViewPrefab;
 
-        // Track the views (index corresponds to hand index)
+        [SerializeField] private float cardSpacing = 80f;
+        [SerializeField] private float angleStep   = 6f;
+        [SerializeField] private float curveHeight = 8f;
+        [SerializeField] private float baseY       = 40f;
+
         private readonly List<CardView> handViews = new();
 
         private void OnEnable()
@@ -34,17 +38,35 @@ namespace BattleSystem
             foreach (Transform child in handContainer) Destroy(child.gameObject);
             handViews.Clear();
 
-            // build new
-            for (int i = 0; i < hand.Count; i++)
+            int count = hand.Count;
+            if (count == 0) return;
+
+            float baseY       = 40f;                        // lift cards off the very bottom
+            float centerIndex = (count - 1) * 0.5f;
+
+            for (int i = 0; i < count; i++)
             {
                 var data = hand[i];
 
-                // instantiate prefab under the container
                 CardView view = Instantiate(cardViewPrefab, handContainer);
                 view.name = $"CardView_{i}_{data.cardName}";
                 view.Bind(this, data);
-
                 handViews.Add(view);
+
+                RectTransform rt = (RectTransform)view.transform;
+
+                float offsetIndex = i - centerIndex;
+
+                float angle = offsetIndex * angleStep;
+                float x = -offsetIndex * cardSpacing;
+                float y = baseY + Mathf.Abs(offsetIndex) * curveHeight;
+
+                rt.anchoredPosition = new Vector2(x, y);
+                rt.localRotation    = Quaternion.Euler(0, 0, angle);
+                rt.localScale       = Vector3.one;
+                rt.SetAsLastSibling();
+
+                view.SetBasePose(rt.anchoredPosition, rt.localScale);
             }
 
             RefreshOrderBadges();
