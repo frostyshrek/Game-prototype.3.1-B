@@ -3,6 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class BattleOrbitMovement : MonoBehaviour
 {
+
+    public Animator animator;
+
     [Header("References")]
     [SerializeField] private Transform enemy;
 
@@ -31,6 +34,7 @@ public class BattleOrbitMovement : MonoBehaviour
     private float currentAngleDeg;
     private float verticalVelocity;
     private CharacterController controller;
+    private Vector3 velocity;
 
     private float lastTapLeftTime = -999f;
     private float lastTapRightTime = -999f;
@@ -85,6 +89,15 @@ public class BattleOrbitMovement : MonoBehaviour
         HandleJumpAndGravity();
         HandleDashInput();
         HandleDuck();
+
+        if (animator != null)
+        {
+            bool isMoving = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
+            float animSpeed = isMoving ? 1f : 0f;
+
+            animator.SetFloat("Speed", animSpeed);
+            animator.SetBool("IsDucking", IsDucking);
+        }
 
         LookAtEnemy();
     }

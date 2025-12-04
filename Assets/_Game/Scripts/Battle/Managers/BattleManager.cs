@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 namespace BattleSystem
 {
@@ -25,6 +26,10 @@ namespace BattleSystem
         [Header("UI")]
         [SerializeField] private HandUIController handUI;
         [SerializeField] private CastButtonUI castButtonUI;
+        [SerializeField] private GameOverUI gameOverUI;
+        public TMP_Text enemyNameText;
+
+        public EnemyController enemy; 
 
         public BattleState currentState = BattleState.PlayerTurn;
 
@@ -42,6 +47,11 @@ namespace BattleSystem
         void Start()
         {
             InitializeBattle();
+
+            if (enemyNameText != null && enemy != null)
+            {
+                enemyNameText.text = enemy.enemyName;
+            }
 
             // enemy starts their own continuous attack loop
             if (enemyAttackController != null)
@@ -176,13 +186,12 @@ namespace BattleSystem
             if (currentState == BattleState.GameOver) return;
 
             currentState = BattleState.GameOver;
-            Debug.Log(playerWon ? "win!" : "lose!");
+            Debug.Log(playerWon ? "[BattleManager] WIN" : "[BattleManager] LOSE");
 
             if (playerMovement != null)
                 playerMovement.SetCanMove(false);
-
             if (enemyAttackController != null)
-                enemyAttackController.StopAttacks();   // stop continuous attacks
+                enemyAttackController.StopAttacks();
 
             if (playerWon && GameState.I != null)
             {
@@ -190,7 +199,18 @@ namespace BattleSystem
                 GameState.I.GiveKey(KeyItem.AncientKey);
             }
 
-            StartCoroutine(ReturnToGladeAfterDelay(1.5f));
+            if (gameOverUI != null)
+            {
+                if (playerWon)
+                    gameOverUI.ShowWin();
+                else
+                    gameOverUI.ShowDeath();
+            }
+            else
+            {
+                Debug.LogWarning("[BattleManager] gameOverUI not assigned, falling back to direct scene load");
+                StartCoroutine(ReturnToGladeAfterDelay(1.5f));
+            }
         }
 
         IEnumerator ReturnToGladeAfterDelay(float delay)

@@ -12,10 +12,12 @@ namespace BattleSystem
         [Header("Prefabs")]
         [SerializeField] private CardView cardViewPrefab;
 
+        [Header("Layout")]
         [SerializeField] private float cardSpacing = 80f;
         [SerializeField] private float angleStep   = 6f;
         [SerializeField] private float curveHeight = 8f;
         [SerializeField] private float baseY       = 40f;
+        [SerializeField] private float enterOffset = 80f; // how far from below cards slide in
 
         private readonly List<CardView> handViews = new();
 
@@ -41,7 +43,6 @@ namespace BattleSystem
             int count = hand.Count;
             if (count == 0) return;
 
-            float baseY       = 40f;                        // lift cards off the very bottom
             float centerIndex = (count - 1) * 0.5f;
 
             for (int i = 0; i < count; i++)
@@ -61,12 +62,17 @@ namespace BattleSystem
                 float x = -offsetIndex * cardSpacing;
                 float y = baseY + Mathf.Abs(offsetIndex) * curveHeight;
 
-                rt.anchoredPosition = new Vector2(x, y);
+                // final resting position for this card
+                Vector2 basePos = new Vector2(x, y);
+
+                // spawn below so it slides up into position
+                rt.anchoredPosition = basePos + new Vector2(0f, -enterOffset);
                 rt.localRotation    = Quaternion.Euler(0, 0, angle);
                 rt.localScale       = Vector3.one;
                 rt.SetAsLastSibling();
 
-                view.SetBasePose(rt.anchoredPosition, rt.localScale);
+                // tell the card where it should end up
+                view.SetBasePose(basePos, Vector3.one);
             }
 
             RefreshOrderBadges();
@@ -89,7 +95,6 @@ namespace BattleSystem
             // After moving, hand list changed: remove that view from handViews
             handViews.RemoveAt(handIndex);
 
-            // You may want to visually move the card to a Preparation UI row — left to right.
             // For now, just update badges in-place:
             RefreshOrderBadges();
         }
@@ -103,7 +108,6 @@ namespace BattleSystem
             var prep = cardManager.GetPreparationCards();
             for (int i = 0; i < prep.Count; i++)
             {
-                // Find any CardView still showing that CardData (if it stayed in hand UI it won’t be found)
                 var view = handViews.Find(v => v.cardData == prep[i]);
                 if (view != null)
                 {
