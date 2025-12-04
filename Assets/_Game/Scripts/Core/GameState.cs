@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using BattleSystem;
 
 public enum KeyItem
 {
@@ -20,6 +21,9 @@ public class GameState : MonoBehaviour
     public Vector3 CheckpointPos { get; private set; }
     public Quaternion CheckpointRot { get; private set; }
     public string CheckpointScene { get; private set; }  // optional: ensure same scene
+
+    // ---- Current encounter data for Battle scene ----
+    public EnemyData CurrentEncounter { get; private set; }
 
     void Awake()
     {
@@ -98,7 +102,6 @@ public class GameState : MonoBehaviour
     {
         if (string.IsNullOrEmpty(id)) return;
         _defeatedEncounters.Add(id);
-        // Optional: persist
         PlayerPrefs.SetString("GS_defeated", string.Join(",", _defeatedEncounters));
         PlayerPrefs.Save();
     }
@@ -118,5 +121,10 @@ public class GameState : MonoBehaviour
             foreach (var s in saved.Split(','))
                 if (!string.IsNullOrEmpty(s)) _defeatedEncounters.Add(s);
         }
+    }
+
+    public void SetCurrentEncounter(EnemyData data)
+    {
+        CurrentEncounter = data;
     }
 }

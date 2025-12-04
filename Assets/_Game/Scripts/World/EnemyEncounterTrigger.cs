@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using BattleSystem;
 
 [RequireComponent(typeof(Collider))]
 public class EnemyEncounterTrigger : MonoBehaviour
 {
     [Header("Encounter Id (unique per enemy)")]
     public string encounterId = "Skeleton_01";
+
+    [Header("What enemy to spawn in battle")]
+    public EnemyData enemyData;
 
     [Header("Scene to load on encounter")]
     public string battleSceneName = "Battle";
@@ -24,7 +28,6 @@ public class EnemyEncounterTrigger : MonoBehaviour
 
     void Start()
     {
-        // If this encounter was already cleared, hide it
         if (GameState.I != null && GameState.I.IsEncounterDefeated(encounterId))
         {
             gameObject.SetActive(false);
@@ -42,7 +45,12 @@ public class EnemyEncounterTrigger : MonoBehaviour
         if (GameState.I != null)
         {
             GameState.I.SetCheckpoint(other.transform);
-            GameState.I.SetLastEncounterId(encounterId); // <-- remember who started this battle
+            GameState.I.SetLastEncounterId(encounterId);      // remember which encounter
+            GameState.I.SetCurrentEncounter(enemyData);
+        }
+        else
+        {
+            Debug.LogError("No GameState found in scene!");
         }
 
         if (encounterEffect) Instantiate(encounterEffect, transform.position, Quaternion.identity);
@@ -52,7 +60,6 @@ public class EnemyEncounterTrigger : MonoBehaviour
 
     void LoadBattleScene()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(battleSceneName);
+        SceneManager.LoadScene(battleSceneName);
     }
 }
-

@@ -137,6 +137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b06b71c407e1e8f408b487592ee80432, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterTrigger
+  encounterId: skeleton_foot_soldier
+  enemyData: {fileID: 11400000, guid: 6dacce258689841449090fea87ccd60d, type: 2}
   battleSceneName: Battle
   delayBeforeLoad: 0.5
   encounterEffect: {fileID: 1432916477848703441, guid: 3aeda9b5ed203344fb3436a5f2dbd8f4, type: 3}

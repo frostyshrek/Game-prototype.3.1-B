@@ -4,20 +4,20 @@ using BattleSystem;   // for BattleCharacter, CardAttribute
 
 public class EnemyAttackController : MonoBehaviour
 {
-    [Header("References")]
-    public BattleOrbitMovement playerMovement;
-    public PlayerEnergy playerEnergy;
-    public BattleCharacter playerCharacter;
-    public BattleManager battleManager;       // to tell GameOver
+    [Header("References (auto-wired by BattleManager)")]
+    [HideInInspector] public BattleOrbitMovement playerMovement;
+    [HideInInspector] public PlayerEnergy playerEnergy;
+    [HideInInspector] public BattleCharacter playerCharacter;
+    [HideInInspector] public BattleManager battleManager;
 
     [Header("Patterns")]
     public EnemyAttackPattern[] attackPatterns;
 
-    [Header("UI")]
-    public EnemyTelegraphUI telegraphUI;
+    [Header("UI (auto-wired by BattleManager)")]
+    [HideInInspector] public EnemyTelegraphUI telegraphUI;
 
     [Header("Behaviour")]
-    public bool autoStart = true;             // start attacking when battle starts?
+    public bool autoStart = true;
     public bool refillEnergyOnDodge = true;
 
     [Header("Attack Timing")]
@@ -26,7 +26,7 @@ public class EnemyAttackController : MonoBehaviour
     [Tooltip("Base maximum time between attacks, in seconds, before speed multiplier.")]
     public float baseMaxInterval = 4f;
     [Tooltip("Attack speed multiplier. 1 = normal, 2 = twice as fast, 0.5 = half speed.")]
-    public float speedMultiplier = 1f;        // this is your 'speed stat'
+    public float speedMultiplier = 1f;
 
     private bool isRunning;
     private Coroutine loopCoroutine;

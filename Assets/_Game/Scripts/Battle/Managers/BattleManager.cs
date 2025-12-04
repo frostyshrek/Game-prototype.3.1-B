@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -13,7 +14,7 @@ namespace BattleSystem
         public PlayerController playerController;
         public EnemyController enemyController;
 
-        [Header("New Battle System References")]
+        [Header("Player References")]
         public EnemyAttackController enemyAttackController;   // attach on Enemy
         public BattleOrbitMovement playerMovement;            // attach on Player
         public PlayerEnergy playerEnergy;                     // attach on Player
@@ -23,19 +24,27 @@ namespace BattleSystem
         [SerializeField] private List<CardData> equippedBattleCards = new List<CardData>();  // set to 5 cards in Inspector
         [SerializeField] private int cardsPerHand = 3;
 
+        [Header("Enemy setup")]
+        public Transform enemySpawnPoint;
+        public TMP_Text enemyNameText;
+
         [Header("UI")]
         [SerializeField] private HandUIController handUI;
         [SerializeField] private CastButtonUI castButtonUI;
         [SerializeField] private GameOverUI gameOverUI;
-        public TMP_Text enemyNameText;
 
-        public EnemyController enemy; 
+        [Header("Enemy HP UI")]
+        public Slider enemyHealthSlider;
+        public TMP_Text enemyHealthText;
+        // public GameObject enemyDamageTextPrefab; // maybe in the future: floating damage text
 
-        public BattleState currentState = BattleState.PlayerTurn;
+        [Header("Enemy Telegraph UI")]
+        public EnemyTelegraphUI enemyTelegraphUI;
 
         [Header("Turn Control")]
         public bool isPlayerTurn = true;
         public int cardsPlayedThisTurn = 0;
+        public BattleState currentState = BattleState.PlayerTurn;
 
         public enum BattleState
         {
@@ -47,11 +56,7 @@ namespace BattleSystem
         void Start()
         {
             InitializeBattle();
-
-            if (enemyNameText != null && enemy != null)
-            {
-                enemyNameText.text = enemy.enemyName;
-            }
+            SetupEnemyFromGameState();
 
             // enemy starts their own continuous attack loop
             if (enemyAttackController != null)
@@ -236,6 +241,54 @@ namespace BattleSystem
                     OnEndTurnButtonClicked();
                 }
             }
+        }
+
+        void SetupEnemyFromGameState()
+        {
+            var gs = GameState.I;
+            EnemyData data = (gs != null) ? gs.CurrentEncounter : null;
+            if (data == null)
+            {
+                Debug.LogWarning("No EnemyData in GameState; cannot spawn enemy.");
+                return;
+            }
+
+            Vector3 pos = enemySpawnPoint != null ? enemySpawnPoint.position : Vector3.zero;
+            Quaternion rot = enemySpawnPoint != null ? enemySpawnPoint.rotation : Quaternion.identity;
+
+            GameObject enemyGO = Instantiate(data.battlePrefab, pos, rot);
+
+            enemyController = enemyGO.GetComponent<EnemyController>();
+            if (enemyController == null)
+            {
+                Debug.LogError("Spawned enemy prefab has no EnemyController!");
+                return;
+            }
+
+            // HP UI
+            enemyController.healthBarSlider = enemyHealthSlider;
+            enemyController.healthText = enemyHealthText;
+            // enemyController.damageTextPrefab = enemyDamageTextPrefab;
+            enemyController.InitializeCharacter();
+
+            // Hook enemy into other systems
+            if (effectResolver != null)
+                effectResolver.enemyController = enemyController;
+                
+            // Hook Enemy Attack Controller wiring
+            var attackCtrl = enemyGO.GetComponent<EnemyAttackController>();
+            if (attackCtrl != null)
+            {
+                attackCtrl.playerMovement = playerMovement;
+                attackCtrl.playerEnergy = playerEnergy;
+                attackCtrl.playerCharacter = playerController;
+                attackCtrl.battleManager = this;
+                attackCtrl.telegraphUI = enemyTelegraphUI;
+            }
+
+            // Hook Name text
+            if (enemyNameText != null)
+                enemyNameText.text = data.displayName;
         }
     }
 }
