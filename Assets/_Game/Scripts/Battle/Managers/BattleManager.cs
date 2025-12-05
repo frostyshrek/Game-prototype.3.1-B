@@ -193,7 +193,16 @@ namespace BattleSystem
 
             if (enemyController.currentHealth <= 0)
             {
-                GameOver(true);
+                // Special case: final boss has its own death sequence
+                var finalBoss = enemyController.GetComponent<FinalBossVisuals>();
+                if (finalBoss != null)
+                {
+                    StartCoroutine(finalBoss.DeathSequence());
+                }
+                else
+                {
+                    GameOver(true);
+                }
                 yield break;
             }
 
@@ -271,8 +280,15 @@ namespace BattleSystem
                 return;
             }
 
+            // --- Decide where to spawn the enemy using enemySpawnPoint ---
             Vector3 pos = enemySpawnPoint != null ? enemySpawnPoint.position : Vector3.zero;
             Quaternion rot = enemySpawnPoint != null ? enemySpawnPoint.rotation : Quaternion.identity;
+
+            // If this enemy uses the Final Boss arena, lift the spawn a bit
+            if (data.arenaBiome == ArenaBiome.FinalBoss)
+            {
+                pos.y = 2f;   // adjust this height until the orb looks right
+            }
 
             GameObject enemyGO = Instantiate(data.battlePrefab, pos, rot);
 

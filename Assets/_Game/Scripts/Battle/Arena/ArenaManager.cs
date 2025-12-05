@@ -30,6 +30,9 @@ namespace BattleSystem
         public GameObject arenaLightning;
         public GameObject arenaFinalBoss;
 
+        [Header("Optional Boss Spawn Point")]
+        public Transform bossSpawnPoint;
+
         // runtime
         private GameObject _currentArenaInstance;
 

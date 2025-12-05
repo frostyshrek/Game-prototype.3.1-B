@@ -102,6 +102,11 @@ public class EnemyAttackController : MonoBehaviour
 
         // TELEGRAPH
         Debug.Log($"Enemy telegraphs: {pattern.attackName} (need {pattern.requiredDodge})");
+
+        if (pattern.telegraphVFXPrefab != null)
+        {
+            Instantiate(pattern.telegraphVFXPrefab, transform.position, Quaternion.identity);
+        }
         if (telegraphUI != null)
             telegraphUI.Show(pattern, pattern.requiredDodge);
 
