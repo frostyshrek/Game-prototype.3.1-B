@@ -31,6 +31,8 @@ public class EnemyAttackController : MonoBehaviour
     private bool isRunning;
     private Coroutine loopCoroutine;
 
+    public Animator animator;
+
     private void Start()
     {
         if (autoStart)
@@ -45,6 +47,11 @@ public class EnemyAttackController : MonoBehaviour
         if (isRunning) return;
         isRunning = true;
         loopCoroutine = StartCoroutine(AttackLoop());
+    }
+
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
     }
 
     // called by BattleManager when battle ends
@@ -100,6 +107,9 @@ public class EnemyAttackController : MonoBehaviour
 
         yield return new WaitForSeconds(pattern.telegraphTime);
 
+        if (animator != null)
+            animator.SetTrigger("Attack");
+
         // CHECK DODGE
         bool dodged = false;
 
@@ -108,13 +118,24 @@ public class EnemyAttackController : MonoBehaviour
             case RequiredDodge.Jump:
                 dodged = playerMovement != null && playerMovement.IsJumping;
                 break;
-            case RequiredDodge.Dash:
-                dodged = playerMovement != null && playerMovement.IsDashing;
+
+            case RequiredDodge.DashLeft:
+                dodged = playerMovement != null &&
+                        playerMovement.IsDashing &&
+                        playerMovement.LastDashDirection == 1;   // 1 = left (A)
                 break;
-            case RequiredDodge.Duck:
-                dodged = playerMovement != null && playerMovement.IsDucking;
+
+            case RequiredDodge.DashRight:
+                dodged = playerMovement != null &&
+                        playerMovement.IsDashing &&
+                        playerMovement.LastDashDirection == -1;  // -1 = right (D)
                 break;
-        }
+
+            case RequiredDodge.Parry:
+                // same mechanic as your old "Duck" – holding S
+                dodged = playerMovement != null && playerMovement.IsParrying;
+                break;
+}
 
         if (telegraphUI != null)
             telegraphUI.Hide();

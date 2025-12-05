@@ -30,9 +30,10 @@ public class EnemyTelegraphUI : MonoBehaviour
             string dodgeLabel = "";
             switch (dodge)
             {
-                case RequiredDodge.Jump: dodgeLabel = "JUMP"; break;
-                case RequiredDodge.Dash: dodgeLabel = "DASH"; break;
-                case RequiredDodge.Duck: dodgeLabel = "DUCK"; break;
+                case RequiredDodge.Jump:      dodgeLabel = "JUMP";       break;
+                case RequiredDodge.DashLeft:  dodgeLabel = "DASH LEFT";  break;
+                case RequiredDodge.DashRight: dodgeLabel = "DASH RIGHT"; break;
+                case RequiredDodge.Parry:     dodgeLabel = "PARRY";      break;
             }
 
             string attackName = pattern != null ? pattern.attackName : "";

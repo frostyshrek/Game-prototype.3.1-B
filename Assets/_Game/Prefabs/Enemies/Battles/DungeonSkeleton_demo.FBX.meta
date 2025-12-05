@@ -143,5 +143,5 @@ AssetOrigin:
   productId: 71087
   packageName: Dungeon Skeletons Demo
   packageVersion: 1.0
-  assetPath: Assets/DungeonCharacters/Skeletons_demo/models/DungeonSkeleton_demo.FBX
+  assetPath: Assets/_Game/Prefabs/Enemies/Battles/DungeonSkeleton_demo.FBX
   uploadId: 136023

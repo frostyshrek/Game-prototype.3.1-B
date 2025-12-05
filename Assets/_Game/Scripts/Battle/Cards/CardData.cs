@@ -57,7 +57,7 @@ namespace BattleSystem
     // attribute type
     public enum CardAttribute
     {
-        None,
+        Physical,
         Fire,
         Ice,
         Earth,
@@ -100,7 +100,7 @@ namespace BattleSystem
         public List<CardEffect> effects;
 
         [Header("battle attributes")]
-        public CardAttribute baseAttribute = CardAttribute.None;
+        public CardAttribute baseAttribute = CardAttribute.Physical;
 
         public string GetDescription()
         {
@@ -115,7 +115,7 @@ namespace BattleSystem
                 {
                     case CardEffectType.Damage:
                         desc += $"deal {effect.value} damage";
-                        if (effect.attribute != CardAttribute.None)
+                        if (effect.attribute != CardAttribute.Physical)
                             desc += $" ({effect.attribute} attribute)";
                         desc += "\n";
                         break;

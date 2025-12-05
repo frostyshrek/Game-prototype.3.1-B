@@ -16,7 +16,7 @@ namespace BattleSystem
         public Animator playerAnimator;
 
         [Header("current turn status")]
-        public CardAttribute currentGlobalAttribute = CardAttribute.None;
+        public CardAttribute currentGlobalAttribute = CardAttribute.Physical;
         public List<StatusEffect> activeStatusEffects = new List<StatusEffect>();
 
 
@@ -26,7 +26,7 @@ namespace BattleSystem
             Debug.Log($"resolving card number: {preparationCards.Count}");
 
             // resit status
-            currentGlobalAttribute = CardAttribute.None;
+            currentGlobalAttribute = CardAttribute.Physical;
 
             // store sequence the card been executed
             List<CardEffect> effectsToExecute = new List<CardEffect>();
@@ -103,7 +103,7 @@ namespace BattleSystem
             CardAttribute attribute = effect.attribute;
 
             // check if is global
-            if (currentGlobalAttribute != CardAttribute.None)
+            if (currentGlobalAttribute != CardAttribute.Physical)
             {
                 attribute = currentGlobalAttribute;
             }

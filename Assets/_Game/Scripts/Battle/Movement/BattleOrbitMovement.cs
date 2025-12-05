@@ -11,6 +11,7 @@ public class BattleOrbitMovement : MonoBehaviour
 
     [Header("Orbit Settings")]
     [SerializeField] private float radius = 5f;
+    public float OrbitRadius => radius;
     [SerializeField] private float moveSpeedDegPerSec = 120f; // how fast A/D spins around enemy
 
     [Header("Jump Settings")]
@@ -30,6 +31,8 @@ public class BattleOrbitMovement : MonoBehaviour
     public bool IsJumping { get; private set; }
     public bool IsDashing { get; private set; }
     public bool IsDucking { get; private set; }
+    public bool IsParrying => IsDucking;
+    public int LastDashDirection { get; private set; } = 0;
 
     private float currentAngleDeg;
     private float verticalVelocity;
@@ -179,7 +182,8 @@ public class BattleOrbitMovement : MonoBehaviour
         if (Time.time < lastDashTime + dashCooldown) yield break;
 
         IsDashing = true;
-        lastDashTime = Time.time;   // start cooldown
+        LastDashDirection = direction;   // +1 = left, -1 = right
+        lastDashTime = Time.time;        // start cooldown
 
         // snap angle by dashAngle instantly (feels snappy)
         currentAngleDeg += direction * dashAngle;
@@ -192,6 +196,7 @@ public class BattleOrbitMovement : MonoBehaviour
         }
 
         IsDashing = false;
+        LastDashDirection = 0;           // reset
     }
 
     private void HandleDuck()

@@ -6,7 +6,7 @@ using BattleSystem;
 public class EnemyEncounterTrigger : MonoBehaviour
 {
     [Header("Encounter Id (unique per enemy)")]
-    public string encounterId = "Skeleton_01";
+    public string encounterId = "Skeleton_Foot_Soldier";
 
     [Header("What enemy to spawn in battle")]
     public EnemyData enemyData;
@@ -44,7 +44,8 @@ public class EnemyEncounterTrigger : MonoBehaviour
 
         if (GameState.I != null)
         {
-            GameState.I.SetCheckpoint(other.transform);
+            // Do NOT set checkpoint here – otherwise it respawns inside the trigger.
+            // GameState.I.SetCheckpoint(other.transform);
             GameState.I.SetLastEncounterId(encounterId);      // remember which encounter
             GameState.I.SetCurrentEncounter(enemyData);
         }

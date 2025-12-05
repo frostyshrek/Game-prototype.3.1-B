@@ -9,10 +9,12 @@ namespace BattleSystem
 {
     public class BattleManager : MonoBehaviour
     {
+        [Header("Core Systems")]
         public CardManager cardManager;
         public EffectResolver effectResolver;
         public PlayerController playerController;
         public EnemyController enemyController;
+        public ArenaManager arenaManager;
 
         [Header("Player References")]
         public EnemyAttackController enemyAttackController;   // attach on Enemy
@@ -55,6 +57,22 @@ namespace BattleSystem
 
         void Start()
         {
+            EnemyData enemyData = null;
+            if (GameState.I != null)
+                enemyData = GameState.I.CurrentEncounter;
+
+            if (enemyData != null)
+            {
+                if (arenaManager != null)
+                    arenaManager.SetupForEnemy(enemyData);
+                else
+                    Debug.LogWarning("BattleManager: arenaManager is not assigned");
+            }
+            else
+            {
+                Debug.LogWarning("BattleManager: CurrentEncounter is null (did you start from Glade?)");
+            }
+
             InitializeBattle();
             SetupEnemyFromGameState();
 
@@ -284,6 +302,13 @@ namespace BattleSystem
                 attackCtrl.playerCharacter = playerController;
                 attackCtrl.battleManager = this;
                 attackCtrl.telegraphUI = enemyTelegraphUI;
+                attackCtrl.animator = enemyController.animator;
+
+                enemyAttackController = attackCtrl;
+            }
+            else
+            {
+                Debug.LogWarning("Spawned enemy has no EnemyAttackController.");
             }
 
             // Hook Name text

@@ -16,8 +16,8 @@ public class EnergyBarFeedback : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.25f;
     [SerializeField] private float shakeMagnitude = 6f;
 
-    [Header("Flash Settings")]
-    [SerializeField] private float flashDuration = 0.15f;
+    // [Header("Flash Settings")]
+    // [SerializeField] private float flashDuration = 0.15f;
 
     private Coroutine feedbackRoutine;
     private Vector2 originalPos;   // 🔹 Vector2 instead of Vector3

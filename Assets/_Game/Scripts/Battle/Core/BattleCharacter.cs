@@ -38,7 +38,7 @@ namespace BattleSystem
         }
 
         // apply damage
-        public void TakeDamage(int damage, CardAttribute attribute = CardAttribute.None)
+        public void TakeDamage(int damage, CardAttribute attribute = CardAttribute.Physical)
         {
             currentHealth -= damage;
             currentHealth = Mathf.Max(0, currentHealth); // make sure hp doesnt go below 0
