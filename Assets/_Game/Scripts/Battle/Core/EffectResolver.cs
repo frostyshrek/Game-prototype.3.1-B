@@ -12,6 +12,13 @@ namespace BattleSystem
         public PlayerController playerController;
         public EnemyController enemyController;
 
+        [Header("Runtime Enemy Data")]
+        public ArenaBiome currentEnemyBiome = ArenaBiome.Castle;
+
+        [Header("UI Feedback")]
+        public BattleFeedbackUI feedbackUI;
+        [SerializeField] private BattleSFX battleSFX;
+
         [Header("Animation")]
         public Animator playerAnimator;
 
@@ -100,37 +107,75 @@ namespace BattleSystem
         private IEnumerator ApplyDamage(CardEffect effect)
         {
             int damage = effect.value;
-            CardAttribute attribute = effect.attribute;
 
-            // check if is global
+            // start with the card's attribute
+            CardAttribute attackAttr = effect.attribute;
+
+            // global override
             if (currentGlobalAttribute != CardAttribute.Physical)
-            {
-                attribute = currentGlobalAttribute;
-            }
+                attackAttr = currentGlobalAttribute;
 
-            // state effect correction (can be extended)
-            damage = CalculateFinalDamage(damage, attribute);
+            // status effects correction
+            damage = CalculateFinalDamage(damage, attackAttr);
 
-            // apply damage to target
+            // apply damage to enemy
             if (effect.target == EffectTarget.Enemy || effect.target == EffectTarget.Both)
             {
                 // Play player attack animation
                 if (playerAnimator != null)
-                {
                     playerAnimator.SetTrigger("Attack");
+
+                // defender attribute derived from biome
+                CardAttribute enemyAttr = GetEnemyAttributeFromBiome(currentEnemyBiome);
+
+                float mult = GetAttributeMultiplier(attackAttr, enemyAttr);
+
+                if (feedbackUI != null) {
+                    if (mult >= 1.25f) 
+                    {
+                        feedbackUI.Show("SUPER EFFECTIVE!", FeedbackType.Effective, 1.4f);
+                        battleSFX?.PlaySuperEffective();
+                    }
+                    else if (mult <= 0.85f){
+                        feedbackUI.Show("NOT VERY EFFECTIVE…", FeedbackType.NotEffective, 1.4f);
+                        battleSFX?.PlayNotEffective();
+                    }
+                    else battleSFX?.PlayHit();
                 }
 
-                enemyController.TakeDamage(damage);
-                Debug.Log($"deal {damage} {attribute} attribute damage to enemy, enemy hp: {enemyController.currentHealth}");
+                int finalDamage = Mathf.RoundToInt(damage * mult);
+
+                enemyController.TakeDamage(finalDamage);
+
+                string label = GetEffectivenessLabel(mult);
+                Debug.Log($"deal {finalDamage} ({damage} x{mult}) {attackAttr} vs {enemyAttr}. {label}");
             }
 
+            // apply damage to self (rare, but supported)
             if (effect.target == EffectTarget.Self || effect.target == EffectTarget.Both)
             {
                 playerController.TakeDamage(damage);
-                Debug.Log($"deal {damage} {attribute}attribute damage, player hp: {playerController.currentHealth}");
+                Debug.Log($"deal {damage} {attackAttr} to player, player hp: {playerController.currentHealth}");
             }
 
             yield return null;
+        }
+
+        private CardAttribute GetEnemyAttributeFromBiome(ArenaBiome biome)
+        {
+            switch (biome)
+            {
+                case ArenaBiome.Castle:    return CardAttribute.Physical;
+                case ArenaBiome.Forest:    return CardAttribute.Earth;
+                case ArenaBiome.Fire:      return CardAttribute.Fire;
+                case ArenaBiome.Ice:       return CardAttribute.Ice;
+                case ArenaBiome.Lightning: return CardAttribute.Lightning;
+
+                // If you have a Void attribute, use it. If not, keep Physical.
+                case ArenaBiome.FinalBoss: return CardAttribute.Physical;
+
+                default: return CardAttribute.Physical;
+            }
         }
 
         // apply heal
@@ -367,6 +412,54 @@ namespace BattleSystem
                 default:
                     return "continuous damage effect";
             }
+        }
+
+        private float GetAttributeMultiplier(CardAttribute attack, CardAttribute defense)
+        {
+            // Physical is neutral against everything
+            if (attack == CardAttribute.Physical) return 1f;
+
+            // Strong/weak rules:
+            // Fire > Ice, Fire < Lightning
+            if (attack == CardAttribute.Fire)
+            {
+                if (defense == CardAttribute.Ice) return 1.5f;
+                if (defense == CardAttribute.Lightning) return 0.75f;
+                return 1f;
+            }
+
+            // Ice > Earth, Ice < Fire
+            if (attack == CardAttribute.Ice)
+            {
+                if (defense == CardAttribute.Earth) return 1.5f;
+                if (defense == CardAttribute.Fire) return 0.75f;
+                return 1f;
+            }
+
+            // Earth > Lightning, Earth < Ice
+            if (attack == CardAttribute.Earth)
+            {
+                if (defense == CardAttribute.Lightning) return 1.5f;
+                if (defense == CardAttribute.Ice) return 0.75f;
+                return 1f;
+            }
+
+            // Lightning > Fire, Lightning < Earth
+            if (attack == CardAttribute.Lightning)
+            {
+                if (defense == CardAttribute.Fire) return 1.5f;
+                if (defense == CardAttribute.Earth) return 0.75f;
+                return 1f;
+            }
+
+            return 1f;
+        }
+
+        private string GetEffectivenessLabel(float mult)
+        {
+            if (mult >= 1.25f) return "SUPER EFFECTIVE!";
+            if (mult <= 0.85f) return "NOT VERY EFFECTIVE…";
+            return "";
         }
 
         // status effect category

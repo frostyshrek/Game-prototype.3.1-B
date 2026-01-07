@@ -15,6 +15,7 @@ namespace BattleSystem
         public PlayerController playerController;
         public EnemyController enemyController;
         public ArenaManager arenaManager;
+        public BattleSFX battleSFX;
 
         [Header("Player References")]
         public EnemyAttackController enemyAttackController;   // attach on Enemy
@@ -34,6 +35,7 @@ namespace BattleSystem
         [SerializeField] private HandUIController handUI;
         [SerializeField] private CastButtonUI castButtonUI;
         [SerializeField] private GameOverUI gameOverUI;
+        [SerializeField] private BattleFeedbackUI feedbackUI;
 
         [Header("Enemy HP UI")]
         public Slider enemyHealthSlider;
@@ -73,8 +75,18 @@ namespace BattleSystem
                 Debug.LogWarning("BattleManager: CurrentEncounter is null (did you start from Glade?)");
             }
 
+            if (effectResolver != null && enemyData != null)
+                effectResolver.currentEnemyBiome = enemyData.arenaBiome;
+
             InitializeBattle();
             SetupEnemyFromGameState();
+
+            // Wire feedback system
+            if (effectResolver != null)
+                effectResolver.feedbackUI = feedbackUI;
+
+            if (cardManager != null)
+                cardManager.feedbackUI = feedbackUI;
 
             // enemy starts their own continuous attack loop
             if (enemyAttackController != null)
@@ -162,6 +174,9 @@ namespace BattleSystem
                 if (castButtonUI != null)
                     castButtonUI.FlashError();
 
+                    battleSFX?.PlayNotEffective();
+                    feedbackUI?.Show("NO CARDS SELECTED", FeedbackType.Error, 1.6f);
+
                 return;
             }
 
@@ -233,10 +248,13 @@ namespace BattleSystem
 
             if (gameOverUI != null)
             {
-                if (playerWon)
+                if (playerWon){
+                    battleSFX?.PlayWinGameOver();
                     gameOverUI.ShowWin();
-                else
+                } else {
                     gameOverUI.ShowDeath();
+                    battleSFX?.PlayLoseGameOver();
+                }
             }
             else
             {
@@ -319,6 +337,8 @@ namespace BattleSystem
                 attackCtrl.battleManager = this;
                 attackCtrl.telegraphUI = enemyTelegraphUI;
                 attackCtrl.animator = enemyController.animator;
+                attackCtrl.feedbackUI = feedbackUI;
+                attackCtrl.battleSFX = FindObjectOfType<BattleSFX>();
 
                 enemyAttackController = attackCtrl;
             }

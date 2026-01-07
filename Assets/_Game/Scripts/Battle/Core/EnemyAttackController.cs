@@ -9,6 +9,9 @@ public class EnemyAttackController : MonoBehaviour
     [HideInInspector] public PlayerEnergy playerEnergy;
     [HideInInspector] public BattleCharacter playerCharacter;
     [HideInInspector] public BattleManager battleManager;
+    [HideInInspector] public BattleFeedbackUI feedbackUI;
+    [HideInInspector] public BattleSFX battleSFX;
+
 
     [Header("Patterns")]
     public EnemyAttackPattern[] attackPatterns;
@@ -104,9 +107,8 @@ public class EnemyAttackController : MonoBehaviour
         Debug.Log($"Enemy telegraphs: {pattern.attackName} (need {pattern.requiredDodge})");
 
         if (pattern.telegraphVFXPrefab != null)
-        {
             Instantiate(pattern.telegraphVFXPrefab, transform.position, Quaternion.identity);
-        }
+
         if (telegraphUI != null)
             telegraphUI.Show(pattern, pattern.requiredDodge);
 
@@ -122,55 +124,84 @@ public class EnemyAttackController : MonoBehaviour
         {
             case RequiredDodge.Jump:
                 dodged = playerMovement != null && playerMovement.IsJumping;
+                battleSFX?.PlayJump();
                 break;
 
             case RequiredDodge.DashLeft:
                 dodged = playerMovement != null &&
                         playerMovement.IsDashing &&
                         playerMovement.LastDashDirection == 1;   // 1 = left (A)
+                battleSFX?.PlayDash();
                 break;
 
             case RequiredDodge.DashRight:
                 dodged = playerMovement != null &&
                         playerMovement.IsDashing &&
                         playerMovement.LastDashDirection == -1;  // -1 = right (D)
+                battleSFX?.PlayDash();
                 break;
 
             case RequiredDodge.Parry:
-                // same mechanic as your old "Duck" – holding S
                 dodged = playerMovement != null && playerMovement.IsParrying;
+                battleSFX?.PlayParry();
                 break;
-}
+
+            default:
+                dodged = false;
+                break;
+        }
 
         if (telegraphUI != null)
             telegraphUI.Hide();
 
         if (dodged)
         {
-            Debug.Log($"✅ Dodged {pattern.attackName}");
+            battleSFX?.PlayDodgeSuccess();
+
+            // Feedback message
+            if (feedbackUI != null)
+            {
+                switch (pattern.requiredDodge)
+                {
+                    case RequiredDodge.Parry:
+                        feedbackUI.Show("PARRIED!", FeedbackType.Success, 1.2f);
+                        break;
+
+                    case RequiredDodge.DashLeft:
+                    case RequiredDodge.DashRight:
+                        feedbackUI.Show("DODGED!", FeedbackType.Success, 1.0f);
+                        break;
+
+                    case RequiredDodge.Jump:
+                        feedbackUI.Show("EVADED!", FeedbackType.Success, 1.0f);
+                        break;
+                }
+            }
 
             if (refillEnergyOnDodge && playerEnergy != null)
-            {
                 playerEnergy.RefillFull();
-            }
         }
         else
         {
-            Debug.Log($"❌ Hit by {pattern.attackName}");
+            feedbackUI?.Show("HIT!", FeedbackType.Warning, 0.9f);
+            battleSFX?.PlayHit();
 
             if (playerCharacter != null)
             {
                 playerCharacter.TakeDamage(pattern.damage, pattern.attribute);
 
-                // if this hit kills the player, end the battle
                 if (playerCharacter.IsDead() && battleManager != null)
                 {
                     battleManager.GameOver(false);
                     yield break;
                 }
             }
+
+            if (pattern.hitVFXPrefab != null)
+                Instantiate(pattern.hitVFXPrefab, playerCharacter.transform.position, Quaternion.identity);
         }
 
         yield return new WaitForSeconds(pattern.recoverTime);
     }
+
 }
