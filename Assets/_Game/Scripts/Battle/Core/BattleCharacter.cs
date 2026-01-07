@@ -16,9 +16,11 @@ namespace BattleSystem
         public TMP_Text healthText;
         public GameObject damageTextPrefab;
 
-        // [Header("视觉效果")]
-        // public ParticleSystem damageEffect;
-        // public ParticleSystem healEffect;
+        [Header("Animation")]
+        public Animator animator;
+        public string hitTriggerName = "Hit";
+        public string dieTriggerName = "Die";
+        public string isDeadBoolName = "IsDead";
 
         // trigers events when health changes
         public System.Action<int, int> OnHealthChanged;
@@ -36,7 +38,7 @@ namespace BattleSystem
         }
 
         // apply damage
-        public void TakeDamage(int damage, CardAttribute attribute = CardAttribute.None)
+        public void TakeDamage(int damage, CardAttribute attribute = CardAttribute.Physical)
         {
             currentHealth -= damage;
             currentHealth = Mathf.Max(0, currentHealth); // make sure hp doesnt go below 0
@@ -49,6 +51,23 @@ namespace BattleSystem
             
             // triger events
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+            if (animator != null)
+            {
+                if (currentHealth <= 0)
+                {
+                    if (!string.IsNullOrEmpty(isDeadBoolName))
+                        animator.SetBool(isDeadBoolName, true);
+
+                    if (!string.IsNullOrEmpty(dieTriggerName))
+                        animator.SetTrigger(dieTriggerName);
+                }
+                else if (damage > 0)
+                {
+                    if (!string.IsNullOrEmpty(hitTriggerName))
+                        animator.SetTrigger(hitTriggerName);
+                }
+            }
             
             Debug.Log($"{gameObject.name} suffers {damage} damage, current hp: {currentHealth}");
         }

@@ -49,6 +49,7 @@ namespace BattleSystem
             ClearSelectionVisuals();
         }
 
+        // NEW: only store the base pose, don't move the rect here
         public void SetBasePose(Vector2 anchoredPos, Vector3 scale)
         {
             if (rect == null)
@@ -57,9 +58,6 @@ namespace BattleSystem
             baseAnchoredPos = anchoredPos;
             baseScale = scale;
             hasBasePose = true;
-
-            rect.anchoredPosition = anchoredPos;
-            rect.localScale = scale;
         }
 
         public void Refresh()
@@ -71,17 +69,16 @@ namespace BattleSystem
                     ? "Card"
                     : cardData.cardName;
 
-            // For hand view, can hide the long description for now
+            // For hand view, hide the long description for now
             if (descriptionText)
             {
-                // Either clear it or disable the component:
                 descriptionText.text = "";
-                // descriptionText.gameObject.SetActive(false); // if prefer hidden
+                // descriptionText.gameObject.SetActive(false); // if you prefer hidden
             }
 
             // if (artImage) artImage.sprite = cardData.cardImage;
 
-            // Cost in corner – uses the CardData.energyCost we added earlier
+            // Cost in corner – uses the CardData.energyCost
             if (costText)
                 costText.text = cardData.energyCost.ToString();
         }
@@ -104,7 +101,7 @@ namespace BattleSystem
             if (orderBadgeText)  orderBadgeText.text = "";
         }
 
-        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e)
+        public void OnPointerClick(PointerEventData e)
         {
             if (controller == null) return;
             controller.OnCardClicked(this);
@@ -134,9 +131,9 @@ namespace BattleSystem
                 targetScale = baseScale * hoverScale;
             }
 
-            // smooth movement & scale
+            // smooth movement & scale (also used for slide-in)
             rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, targetPos, Time.deltaTime * hoverSmooth);
-            rect.localScale = Vector3.Lerp(rect.localScale, targetScale, Time.deltaTime * hoverSmooth);
+            rect.localScale       = Vector3.Lerp(rect.localScale,       targetScale, Time.deltaTime * hoverSmooth);
         }
     }
 }

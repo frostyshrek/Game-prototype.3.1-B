@@ -12,8 +12,11 @@ namespace BattleSystem
         public PlayerController playerController;
         public EnemyController enemyController;
 
+        [Header("Animation")]
+        public Animator playerAnimator;
+
         [Header("current turn status")]
-        public CardAttribute currentGlobalAttribute = CardAttribute.None;
+        public CardAttribute currentGlobalAttribute = CardAttribute.Physical;
         public List<StatusEffect> activeStatusEffects = new List<StatusEffect>();
 
 
@@ -23,7 +26,7 @@ namespace BattleSystem
             Debug.Log($"resolving card number: {preparationCards.Count}");
 
             // resit status
-            currentGlobalAttribute = CardAttribute.None;
+            currentGlobalAttribute = CardAttribute.Physical;
 
             // store sequence the card been executed
             List<CardEffect> effectsToExecute = new List<CardEffect>();
@@ -49,6 +52,7 @@ namespace BattleSystem
 
             Debug.Log("finish resolving every effect");
         }
+        
 
         // execute effect
         private IEnumerator ExecuteEffect(CardEffect effect)
@@ -99,7 +103,7 @@ namespace BattleSystem
             CardAttribute attribute = effect.attribute;
 
             // check if is global
-            if (currentGlobalAttribute != CardAttribute.None)
+            if (currentGlobalAttribute != CardAttribute.Physical)
             {
                 attribute = currentGlobalAttribute;
             }
@@ -110,8 +114,14 @@ namespace BattleSystem
             // apply damage to target
             if (effect.target == EffectTarget.Enemy || effect.target == EffectTarget.Both)
             {
+                // Play player attack animation
+                if (playerAnimator != null)
+                {
+                    playerAnimator.SetTrigger("Attack");
+                }
+
                 enemyController.TakeDamage(damage);
-                Debug.Log($"deal {damage} {attribute}attribute damage to enemy, enemy hp: {enemyController.currentHealth}");
+                Debug.Log($"deal {damage} {attribute} attribute damage to enemy, enemy hp: {enemyController.currentHealth}");
             }
 
             if (effect.target == EffectTarget.Self || effect.target == EffectTarget.Both)

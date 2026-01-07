@@ -21,5 +21,5 @@ public class EnemyAttackPattern : ScriptableObject
     public GameObject hitVFXPrefab;       // optional
 
     [Header("Attribute")]
-    public CardAttribute attribute = CardAttribute.None;
+    public CardAttribute attribute = CardAttribute.Physical;
 }

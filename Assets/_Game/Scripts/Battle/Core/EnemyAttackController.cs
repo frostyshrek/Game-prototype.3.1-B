@@ -4,20 +4,20 @@ using BattleSystem;   // for BattleCharacter, CardAttribute
 
 public class EnemyAttackController : MonoBehaviour
 {
-    [Header("References")]
-    public BattleOrbitMovement playerMovement;
-    public PlayerEnergy playerEnergy;
-    public BattleCharacter playerCharacter;
-    public BattleManager battleManager;       // to tell GameOver
+    [Header("References (auto-wired by BattleManager)")]
+    [HideInInspector] public BattleOrbitMovement playerMovement;
+    [HideInInspector] public PlayerEnergy playerEnergy;
+    [HideInInspector] public BattleCharacter playerCharacter;
+    [HideInInspector] public BattleManager battleManager;
 
     [Header("Patterns")]
     public EnemyAttackPattern[] attackPatterns;
 
-    [Header("UI")]
-    public EnemyTelegraphUI telegraphUI;
+    [Header("UI (auto-wired by BattleManager)")]
+    [HideInInspector] public EnemyTelegraphUI telegraphUI;
 
     [Header("Behaviour")]
-    public bool autoStart = true;             // start attacking when battle starts?
+    public bool autoStart = true;
     public bool refillEnergyOnDodge = true;
 
     [Header("Attack Timing")]
@@ -26,10 +26,12 @@ public class EnemyAttackController : MonoBehaviour
     [Tooltip("Base maximum time between attacks, in seconds, before speed multiplier.")]
     public float baseMaxInterval = 4f;
     [Tooltip("Attack speed multiplier. 1 = normal, 2 = twice as fast, 0.5 = half speed.")]
-    public float speedMultiplier = 1f;        // this is your 'speed stat'
+    public float speedMultiplier = 1f;
 
     private bool isRunning;
     private Coroutine loopCoroutine;
+
+    public Animator animator;
 
     private void Start()
     {
@@ -45,6 +47,11 @@ public class EnemyAttackController : MonoBehaviour
         if (isRunning) return;
         isRunning = true;
         loopCoroutine = StartCoroutine(AttackLoop());
+    }
+
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
     }
 
     // called by BattleManager when battle ends
@@ -95,10 +102,18 @@ public class EnemyAttackController : MonoBehaviour
 
         // TELEGRAPH
         Debug.Log($"Enemy telegraphs: {pattern.attackName} (need {pattern.requiredDodge})");
+
+        if (pattern.telegraphVFXPrefab != null)
+        {
+            Instantiate(pattern.telegraphVFXPrefab, transform.position, Quaternion.identity);
+        }
         if (telegraphUI != null)
             telegraphUI.Show(pattern, pattern.requiredDodge);
 
         yield return new WaitForSeconds(pattern.telegraphTime);
+
+        if (animator != null)
+            animator.SetTrigger("Attack");
 
         // CHECK DODGE
         bool dodged = false;
@@ -108,13 +123,24 @@ public class EnemyAttackController : MonoBehaviour
             case RequiredDodge.Jump:
                 dodged = playerMovement != null && playerMovement.IsJumping;
                 break;
-            case RequiredDodge.Dash:
-                dodged = playerMovement != null && playerMovement.IsDashing;
+
+            case RequiredDodge.DashLeft:
+                dodged = playerMovement != null &&
+                        playerMovement.IsDashing &&
+                        playerMovement.LastDashDirection == 1;   // 1 = left (A)
                 break;
-            case RequiredDodge.Duck:
-                dodged = playerMovement != null && playerMovement.IsDucking;
+
+            case RequiredDodge.DashRight:
+                dodged = playerMovement != null &&
+                        playerMovement.IsDashing &&
+                        playerMovement.LastDashDirection == -1;  // -1 = right (D)
                 break;
-        }
+
+            case RequiredDodge.Parry:
+                // same mechanic as your old "Duck" – holding S
+                dodged = playerMovement != null && playerMovement.IsParrying;
+                break;
+}
 
         if (telegraphUI != null)
             telegraphUI.Hide();

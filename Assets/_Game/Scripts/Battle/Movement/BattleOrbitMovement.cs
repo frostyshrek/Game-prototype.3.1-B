@@ -3,11 +3,15 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class BattleOrbitMovement : MonoBehaviour
 {
+
+    public Animator animator;
+
     [Header("References")]
     [SerializeField] private Transform enemy;
 
     [Header("Orbit Settings")]
     [SerializeField] private float radius = 5f;
+    public float OrbitRadius => radius;
     [SerializeField] private float moveSpeedDegPerSec = 120f; // how fast A/D spins around enemy
 
     [Header("Jump Settings")]
@@ -27,10 +31,13 @@ public class BattleOrbitMovement : MonoBehaviour
     public bool IsJumping { get; private set; }
     public bool IsDashing { get; private set; }
     public bool IsDucking { get; private set; }
+    public bool IsParrying => IsDucking;
+    public int LastDashDirection { get; private set; } = 0;
 
     private float currentAngleDeg;
     private float verticalVelocity;
     private CharacterController controller;
+    private Vector3 velocity;
 
     private float lastTapLeftTime = -999f;
     private float lastTapRightTime = -999f;
@@ -85,6 +92,15 @@ public class BattleOrbitMovement : MonoBehaviour
         HandleJumpAndGravity();
         HandleDashInput();
         HandleDuck();
+
+        if (animator != null)
+        {
+            bool isMoving = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
+            float animSpeed = isMoving ? 1f : 0f;
+
+            animator.SetFloat("Speed", animSpeed);
+            animator.SetBool("IsDucking", IsDucking);
+        }
 
         LookAtEnemy();
     }
@@ -166,7 +182,8 @@ public class BattleOrbitMovement : MonoBehaviour
         if (Time.time < lastDashTime + dashCooldown) yield break;
 
         IsDashing = true;
-        lastDashTime = Time.time;   // start cooldown
+        LastDashDirection = direction;   // +1 = left, -1 = right
+        lastDashTime = Time.time;        // start cooldown
 
         // snap angle by dashAngle instantly (feels snappy)
         currentAngleDeg += direction * dashAngle;
@@ -179,6 +196,7 @@ public class BattleOrbitMovement : MonoBehaviour
         }
 
         IsDashing = false;
+        LastDashDirection = 0;           // reset
     }
 
     private void HandleDuck()

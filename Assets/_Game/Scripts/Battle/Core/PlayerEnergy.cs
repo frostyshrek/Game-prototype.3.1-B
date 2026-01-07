@@ -34,4 +34,12 @@ public class PlayerEnergy : MonoBehaviour
         CurrentEnergy = maxEnergy;
         RaiseEnergyChanged();
     }
+
+    public void GainEnergy(int amount)
+    {
+        CurrentEnergy += amount;
+        CurrentEnergy = Mathf.Clamp(CurrentEnergy, 0, maxEnergy);
+
+        RaiseEnergyChanged();
+    }
 }

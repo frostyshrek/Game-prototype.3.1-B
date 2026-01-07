@@ -11,6 +11,9 @@ namespace BattleSystem
         public GameObject hpUIPrefab;     // drag WorldSpaceHP prefab
         private WorldSpaceHPUI hpUI;      // runtime instance
 
+        [Header("Enemy Info")]
+        public string enemyName = "Enemy";
+
         void Start()
         {
             isPlayer = true;

@@ -1,18 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 namespace BattleSystem
 {
     public class BattleManager : MonoBehaviour
     {
+        [Header("Core Systems")]
         public CardManager cardManager;
         public EffectResolver effectResolver;
         public PlayerController playerController;
         public EnemyController enemyController;
+        public ArenaManager arenaManager;
 
-        [Header("New Battle System References")]
+        [Header("Player References")]
         public EnemyAttackController enemyAttackController;   // attach on Enemy
         public BattleOrbitMovement playerMovement;            // attach on Player
         public PlayerEnergy playerEnergy;                     // attach on Player
@@ -22,15 +26,27 @@ namespace BattleSystem
         [SerializeField] private List<CardData> equippedBattleCards = new List<CardData>();  // set to 5 cards in Inspector
         [SerializeField] private int cardsPerHand = 3;
 
+        [Header("Enemy setup")]
+        public Transform enemySpawnPoint;
+        public TMP_Text enemyNameText;
+
         [Header("UI")]
         [SerializeField] private HandUIController handUI;
         [SerializeField] private CastButtonUI castButtonUI;
+        [SerializeField] private GameOverUI gameOverUI;
 
-        public BattleState currentState = BattleState.PlayerTurn;
+        [Header("Enemy HP UI")]
+        public Slider enemyHealthSlider;
+        public TMP_Text enemyHealthText;
+        // public GameObject enemyDamageTextPrefab; // maybe in the future: floating damage text
+
+        [Header("Enemy Telegraph UI")]
+        public EnemyTelegraphUI enemyTelegraphUI;
 
         [Header("Turn Control")]
         public bool isPlayerTurn = true;
         public int cardsPlayedThisTurn = 0;
+        public BattleState currentState = BattleState.PlayerTurn;
 
         public enum BattleState
         {
@@ -41,7 +57,24 @@ namespace BattleSystem
 
         void Start()
         {
+            EnemyData enemyData = null;
+            if (GameState.I != null)
+                enemyData = GameState.I.CurrentEncounter;
+
+            if (enemyData != null)
+            {
+                if (arenaManager != null)
+                    arenaManager.SetupForEnemy(enemyData);
+                else
+                    Debug.LogWarning("BattleManager: arenaManager is not assigned");
+            }
+            else
+            {
+                Debug.LogWarning("BattleManager: CurrentEncounter is null (did you start from Glade?)");
+            }
+
             InitializeBattle();
+            SetupEnemyFromGameState();
 
             // enemy starts their own continuous attack loop
             if (enemyAttackController != null)
@@ -160,7 +193,16 @@ namespace BattleSystem
 
             if (enemyController.currentHealth <= 0)
             {
-                GameOver(true);
+                // Special case: final boss has its own death sequence
+                var finalBoss = enemyController.GetComponent<FinalBossVisuals>();
+                if (finalBoss != null)
+                {
+                    StartCoroutine(finalBoss.DeathSequence());
+                }
+                else
+                {
+                    GameOver(true);
+                }
                 yield break;
             }
 
@@ -176,13 +218,12 @@ namespace BattleSystem
             if (currentState == BattleState.GameOver) return;
 
             currentState = BattleState.GameOver;
-            Debug.Log(playerWon ? "win!" : "lose!");
+            Debug.Log(playerWon ? "[BattleManager] WIN" : "[BattleManager] LOSE");
 
             if (playerMovement != null)
                 playerMovement.SetCanMove(false);
-
             if (enemyAttackController != null)
-                enemyAttackController.StopAttacks();   // stop continuous attacks
+                enemyAttackController.StopAttacks();
 
             if (playerWon && GameState.I != null)
             {
@@ -190,7 +231,18 @@ namespace BattleSystem
                 GameState.I.GiveKey(KeyItem.AncientKey);
             }
 
-            StartCoroutine(ReturnToGladeAfterDelay(1.5f));
+            if (gameOverUI != null)
+            {
+                if (playerWon)
+                    gameOverUI.ShowWin();
+                else
+                    gameOverUI.ShowDeath();
+            }
+            else
+            {
+                Debug.LogWarning("[BattleManager] gameOverUI not assigned, falling back to direct scene load");
+                StartCoroutine(ReturnToGladeAfterDelay(1.5f));
+            }
         }
 
         IEnumerator ReturnToGladeAfterDelay(float delay)
@@ -216,6 +268,68 @@ namespace BattleSystem
                     OnEndTurnButtonClicked();
                 }
             }
+        }
+
+        void SetupEnemyFromGameState()
+        {
+            var gs = GameState.I;
+            EnemyData data = (gs != null) ? gs.CurrentEncounter : null;
+            if (data == null)
+            {
+                Debug.LogWarning("No EnemyData in GameState; cannot spawn enemy.");
+                return;
+            }
+
+            // --- Decide where to spawn the enemy using enemySpawnPoint ---
+            Vector3 pos = enemySpawnPoint != null ? enemySpawnPoint.position : Vector3.zero;
+            Quaternion rot = enemySpawnPoint != null ? enemySpawnPoint.rotation : Quaternion.identity;
+
+            // If this enemy uses the Final Boss arena, lift the spawn a bit
+            if (data.arenaBiome == ArenaBiome.FinalBoss)
+            {
+                pos.y = 2f;   // adjust this height until the orb looks right
+            }
+
+            GameObject enemyGO = Instantiate(data.battlePrefab, pos, rot);
+
+            enemyController = enemyGO.GetComponent<EnemyController>();
+            if (enemyController == null)
+            {
+                Debug.LogError("Spawned enemy prefab has no EnemyController!");
+                return;
+            }
+
+            // HP UI
+            enemyController.healthBarSlider = enemyHealthSlider;
+            enemyController.healthText = enemyHealthText;
+            // enemyController.damageTextPrefab = enemyDamageTextPrefab;
+            enemyController.InitializeCharacter();
+
+            // Hook enemy into other systems
+            if (effectResolver != null)
+                effectResolver.enemyController = enemyController;
+                
+            // Hook Enemy Attack Controller wiring
+            var attackCtrl = enemyGO.GetComponent<EnemyAttackController>();
+            if (attackCtrl != null)
+            {
+                attackCtrl.playerMovement = playerMovement;
+                attackCtrl.playerEnergy = playerEnergy;
+                attackCtrl.playerCharacter = playerController;
+                attackCtrl.battleManager = this;
+                attackCtrl.telegraphUI = enemyTelegraphUI;
+                attackCtrl.animator = enemyController.animator;
+
+                enemyAttackController = attackCtrl;
+            }
+            else
+            {
+                Debug.LogWarning("Spawned enemy has no EnemyAttackController.");
+            }
+
+            // Hook Name text
+            if (enemyNameText != null)
+                enemyNameText.text = data.displayName;
         }
     }
 }

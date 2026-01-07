@@ -16,7 +16,7 @@ MonoBehaviour:
   damage: 20
   telegraphTime: 1.2
   recoverTime: 0.5
-  requiredDodge: 3
+  requiredDodge: 4
   icon: {fileID: 0}
   telegraphVFXPrefab: {fileID: 0}
   hitVFXPrefab: {fileID: 0}
