@@ -25,6 +25,12 @@ public class GameState : MonoBehaviour
     // ---- Current encounter data for Battle scene ----
     public EnemyData CurrentEncounter { get; private set; }
 
+    [SerializeField] private List<string> unlockedCardIds = new List<string>();
+    [SerializeField] private List<string> equippedCardIds = new List<string>(); // must be 5
+
+    public IReadOnlyList<string> UnlockedCardIds => unlockedCardIds;
+    public IReadOnlyList<string> EquippedCardIds => equippedCardIds;
+
     public void SetCurrentEncounter(EnemyData data)
     {
         CurrentEncounter = data;
@@ -126,5 +132,78 @@ public class GameState : MonoBehaviour
             foreach (var s in saved.Split(','))
                 if (!string.IsNullOrEmpty(s)) _defeatedEncounters.Add(s);
         }
+    }
+
+    public void EnsureStarterCards(List<CardData> starterCards)
+    {
+        if (starterCards == null) return;
+
+        // If player has nothing unlocked yet, give starters once.
+        LoadCards();
+        if (unlockedCardIds.Count > 0) return;
+
+        foreach (var c in starterCards)
+            if (c != null && !unlockedCardIds.Contains(c.cardId))
+                unlockedCardIds.Add(c.cardId);
+
+        // Auto-equip first 5
+        equippedCardIds.Clear();
+        for (int i = 0; i < 5 && i < starterCards.Count; i++)
+            if (starterCards[i] != null)
+                equippedCardIds.Add(starterCards[i].cardId);
+
+        SaveCards();
+    }
+
+    public bool IsCardUnlocked(CardData c)
+    {
+        if (c == null) return false;
+        return unlockedCardIds.Contains(c.cardId);
+    }
+
+    public void UnlockCard(CardData c)
+    {
+        if (c == null) return;
+        if (!unlockedCardIds.Contains(c.cardId))
+        {
+            unlockedCardIds.Add(c.cardId);
+            SaveCards();
+        }
+    }
+
+    public void SetEquippedCards(List<CardData> cards)
+    {
+        equippedCardIds.Clear();
+        if (cards != null)
+        {
+            for (int i = 0; i < 5 && i < cards.Count; i++)
+                if (cards[i] != null)
+                    equippedCardIds.Add(cards[i].cardId);
+        }
+        SaveCards();
+    }
+
+    const string CARD_UNLOCK_KEY = "GS_unlocked_cards";
+    const string CARD_EQUIP_KEY  = "GS_equipped_cards";
+
+    public void SaveCards()
+    {
+        PlayerPrefs.SetString(CARD_UNLOCK_KEY, string.Join(",", unlockedCardIds));
+        PlayerPrefs.SetString(CARD_EQUIP_KEY, string.Join(",", equippedCardIds));
+        PlayerPrefs.Save();
+    }
+
+    public void LoadCards()
+    {
+        unlockedCardIds.Clear();
+        equippedCardIds.Clear();
+
+        var u = PlayerPrefs.GetString(CARD_UNLOCK_KEY, "");
+        if (!string.IsNullOrEmpty(u))
+            unlockedCardIds.AddRange(u.Split(','));
+
+        var e = PlayerPrefs.GetString(CARD_EQUIP_KEY, "");
+        if (!string.IsNullOrEmpty(e))
+            equippedCardIds.AddRange(e.Split(','));
     }
 }

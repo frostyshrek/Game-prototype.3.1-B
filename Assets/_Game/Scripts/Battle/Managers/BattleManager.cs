@@ -23,9 +23,8 @@ namespace BattleSystem
         public PlayerEnergy playerEnergy;                     // attach on Player
 
         [Header("Battle Loadout")]
-        [Tooltip("5 cards the player has chosen before entering battle")]
-        [SerializeField] private List<CardData> equippedBattleCards = new List<CardData>();  // set to 5 cards in Inspector
         [SerializeField] private int cardsPerHand = 3;
+        [SerializeField] private CardDatabase cardDatabase;
 
         [Header("Enemy setup")]
         public Transform enemySpawnPoint;
@@ -78,6 +77,9 @@ namespace BattleSystem
             if (effectResolver != null && enemyData != null)
                 effectResolver.currentEnemyBiome = enemyData.arenaBiome;
 
+            if (GameState.I != null)
+                GameState.I.LoadCards();
+
             InitializeBattle();
             SetupEnemyFromGameState();
 
@@ -110,7 +112,6 @@ namespace BattleSystem
             }
 
             BuildRandomHandFromEquipped();
-            Debug.Log($"Battle init: hand={cardManager.playerHand.Count} cards (from {equippedBattleCards.Count} equipped)");
         }
 
         private void BuildRandomHandFromEquipped()
@@ -118,13 +119,43 @@ namespace BattleSystem
             cardManager.playerHand.Clear();
             cardManager.preparationArea.Clear();
 
-            if (equippedBattleCards == null || equippedBattleCards.Count == 0)
+            if (GameState.I == null)
             {
-                Debug.LogWarning("No equippedBattleCards set! Please assign 5 in BattleManager.");
+                Debug.LogWarning("BattleManager: No GameState found. Cannot load equipped deck.");
                 return;
             }
 
-            List<CardData> pool = new List<CardData>(equippedBattleCards);
+            if (cardDatabase == null)
+            {
+                Debug.LogError("BattleManager: cardDatabase not assigned! Drag your CardDatabase asset onto BattleManager.");
+                return;
+            }
+
+            // Get the 5 equipped card IDs from GameState
+            var ids = GameState.I.EquippedCardIds;
+            if (ids == null || ids.Count == 0)
+            {
+                Debug.LogWarning("BattleManager: EquippedCardIds is empty. Did you save a deck in Glade?");
+                return;
+            }
+
+            // Convert IDs -> CardData
+            List<CardData> equipped = new List<CardData>();
+            foreach (var id in ids)
+            {
+                var card = cardDatabase.FindById(id);
+                if (card != null) equipped.Add(card);
+                else Debug.LogWarning($"BattleManager: Could not find CardData for id '{id}' in CardDatabase.");
+            }
+
+            if (equipped.Count == 0)
+            {
+                Debug.LogWarning("BattleManager: No valid equipped cards found.");
+                return;
+            }
+
+            // Build random hand from equipped cards
+            List<CardData> pool = new List<CardData>(equipped);
 
             for (int i = 0; i < cardsPerHand && pool.Count > 0; i++)
             {

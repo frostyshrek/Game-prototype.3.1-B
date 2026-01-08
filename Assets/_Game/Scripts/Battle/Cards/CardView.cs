@@ -135,5 +135,13 @@ namespace BattleSystem
             rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, targetPos, Time.deltaTime * hoverSmooth);
             rect.localScale       = Vector3.Lerp(rect.localScale,       targetScale, Time.deltaTime * hoverSmooth);
         }
+
+        public void BindForMenu(CardData data)
+        {
+            controller = null;
+            cardData = data;
+            Refresh();
+            ClearSelectionVisuals();
+        }
     }
 }

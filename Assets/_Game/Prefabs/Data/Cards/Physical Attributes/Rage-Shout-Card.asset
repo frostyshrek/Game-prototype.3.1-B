@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78ca935446c0840c38c4e822d126db48, type: 3}
   m_Name: Rage-Shout-Card
   m_EditorClassIdentifier: 
+  cardId: Rage-Shout-Card
   cardName: Rage Shout
   description: Doubles Damage of next Attack!
-  energyCost: 40
+  energyCost: 50
   effects:
   - effectType: 7
     target: 0
