@@ -19,6 +19,9 @@ public class MenuFlow : MonoBehaviour
     [TextArea(2, 6)]
     public string[] lines;             // 你的多段文本
 
+    [TextArea(10, 40)]
+    public string fullStory;
+
     bool waitingForInput = false;
 
     void Awake()
@@ -61,31 +64,51 @@ public class MenuFlow : MonoBehaviour
         yield return Fade(0f, 1f, fadeDuration);
 
         // 2) 显示你的文本（逐段追加）ADD OUR STORY HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        storyText.text = "TBC";
-        if (lines != null)
+        storyText.text = fullStory;          // fullStory 是你的整段长故事字符串
+        storyText.pageToDisplay = 1;         // 从第1页开始
+
+        // 强制 TMP 先计算分页信息（必须）
+        storyText.ForceMeshUpdate();
+
+        int totalPages = storyText.textInfo.pageCount;
+
+        while (true)
         {
-            for (int i = 0; i < lines.Length; i++)
+            // 等待任意输入（键盘/鼠标）
+            yield return new WaitUntil(() => Input.anyKeyDown);
+
+            // 防止一帧内多次触发
+            yield return null;
+
+            if (storyText.pageToDisplay < totalPages)
             {
-                storyText.text += lines[i] + "\n\n";
-                yield return new WaitForSeconds(lineDelay);
+                storyText.pageToDisplay++;
+            }
+            else
+            {
+                break; // 最后一页按下后结束翻页，继续执行后面的“进游戏”逻辑
             }
         }
+        storyText.text += "\n\n<color=#FFFFFFAA>Press any key to continue</color>";
 
-        // 3) 等任意输入继续
-        storyText.text += "\n<alpha=#AA>Press any key to continue";
-        waitingForInput = true;
-    }
+        // 等最后一次输入
+        yield return new WaitUntil(() => Input.anyKeyDown);
+        yield return null;
 
-    IEnumerator Fade(float from, float to, float duration)
-    {
-        float t = 0f;
-        while (t < duration)
+        // 跳转场景
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Glade");
+
+        IEnumerator Fade(float from, float to, float duration)
         {
-            t += Time.deltaTime;
-            float a = Mathf.Lerp(from, to, t / duration);
-            blackOverlay.alpha = a;
-            yield return null;
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+                float a = Mathf.Lerp(from, to, t / duration);
+                blackOverlay.alpha = a;
+                yield return null;
+            }
+            blackOverlay.alpha = to;
         }
-        blackOverlay.alpha = to;
     }
 }
