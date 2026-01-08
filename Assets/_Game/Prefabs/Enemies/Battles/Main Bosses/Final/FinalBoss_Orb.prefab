@@ -276,14 +276,25 @@ MonoBehaviour:
   playerEnergy: {fileID: 0}
   playerCharacter: {fileID: 0}
   battleManager: {fileID: 0}
+  feedbackUI: {fileID: 0}
+  battleSFX: {fileID: 0}
   attackPatterns:
   - {fileID: 11400000, guid: c297d269d74dc104d8e31cf81b87c6d2, type: 2}
+  - {fileID: 11400000, guid: 58a6997d480ee9046ad4b8edbed269a8, type: 2}
+  - {fileID: 11400000, guid: 2d013855f1504c545a2401f78bd83bab, type: 2}
   telegraphUI: {fileID: 0}
   autoStart: 1
   refillEnergyOnDodge: 1
   baseMinInterval: 2
   baseMaxInterval: 4
   speedMultiplier: 2
+  attackBurstPrefab: {fileID: 0}
+  attackBurstPoint: {fileID: 0}
+  physicalColor: {r: 1, g: 1, b: 1, a: 1}
+  fireColor: {r: 1, g: 0.4, b: 0.1, a: 1}
+  iceColor: {r: 0.5, g: 0.9, b: 1, a: 1}
+  earthColor: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  lightningColor: {r: 1, g: 0.9, b: 0.2, a: 1}
   animator: {fileID: 0}
 --- !u!114 &-1890644803605076104
 MonoBehaviour:

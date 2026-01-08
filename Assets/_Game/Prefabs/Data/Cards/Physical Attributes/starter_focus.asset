@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78ca935446c0840c38c4e822d126db48, type: 3}
+  m_Name: starter_focus
+  m_EditorClassIdentifier: 
+  cardId: starter_focus
+  cardName: Focus
+  description: Remove Debuffs
+  energyCost: 10
+  effects:
+  - effectType: 6
+    target: 5
+    value: 0
+    attribute: 0
+    statusType: 0
+    statusDuration: 0
+    requiredAttribute: 0
+    requirePreviousCard: 0
+    requireNextCard: 0
+  baseAttribute: 0

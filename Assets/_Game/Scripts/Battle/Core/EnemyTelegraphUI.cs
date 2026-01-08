@@ -1,52 +1,101 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class EnemyTelegraphUI : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Image iconImage;
-    [SerializeField] private TMP_Text infoText;      // single line: "Static Wave (DUCK)"
+    [SerializeField] private TMP_Text infoText;      // "EARTHQUAKE — JUMP"
+    [SerializeField] private TMP_Text timerText;     // "0.8s"
     [SerializeField] private CanvasGroup canvasGroup;
+
+    private Coroutine timerRoutine;
 
     private void Awake()
     {
-        if (canvasGroup != null)
-            canvasGroup.alpha = 0f;
+        HideInstant();
     }
 
     public void Show(EnemyAttackPattern pattern, RequiredDodge dodge)
     {
-        // icon
-        if (pattern != null && iconImage != null)
-        {
-            iconImage.sprite = pattern.icon;
-            iconImage.enabled = (pattern.icon != null);
-        }
+        if (pattern == null) return;
 
-        // text: "AttackName (DODGE)"
+        // text line
         if (infoText != null)
         {
-            string dodgeLabel = "";
-            switch (dodge)
-            {
-                case RequiredDodge.Jump:      dodgeLabel = "JUMP";       break;
-                case RequiredDodge.DashLeft:  dodgeLabel = "DASH LEFT";  break;
-                case RequiredDodge.DashRight: dodgeLabel = "DASH RIGHT"; break;
-                case RequiredDodge.Parry:     dodgeLabel = "PARRY";      break;
-            }
-
-            string attackName = pattern != null ? pattern.attackName : "";
-            infoText.text = $"{attackName} ({dodgeLabel})";
+            string dodgeLabel = DodgeLabel(dodge);
+            infoText.text = $"{pattern.attackName} — {dodgeLabel}";
         }
 
-        if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
+        // start timer visuals
+        StartTelegraphTimer(pattern.telegraphTime);
+        FadeTo(1f);
     }
 
     public void Hide()
     {
-        if (canvasGroup != null)
-            canvasGroup.alpha = 0f;
+        if (timerRoutine != null)
+        {
+            StopCoroutine(timerRoutine);
+            timerRoutine = null;
+        }
+
+        FadeTo(0f);
+    }
+
+    private void HideInstant()
+    {
+        if (canvasGroup != null) canvasGroup.alpha = 0f;
+        if (timerText != null) timerText.text = "";
+    }
+
+    private void StartTelegraphTimer(float telegraphTime)
+    {
+        if (timerRoutine != null)
+            StopCoroutine(timerRoutine);
+
+        timerRoutine = StartCoroutine(TelegraphTimerRoutine(Mathf.Max(0.05f, telegraphTime)));
+    }
+
+    private IEnumerator TelegraphTimerRoutine(float duration)
+    {
+        float t = 0f;
+
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float remaining = Mathf.Max(0f, duration - t);
+
+            // countdown text
+            if (timerText != null)
+                timerText.text = $"{remaining:0.0}s";
+
+            yield return null;
+        }
+
+        // end state
+        if (timerText != null) timerText.text = "0.0s";
+
+        timerRoutine = null;
+    }
+
+    private void FadeTo(float a)
+    {
+        if (canvasGroup == null) return;
+        canvasGroup.alpha = a;
+    }
+
+    private string DodgeLabel(RequiredDodge dodge)
+    {
+        switch (dodge)
+        {
+            case RequiredDodge.Jump: return "JUMP";
+            case RequiredDodge.DashLeft: return "DASH ←";
+            case RequiredDodge.DashRight: return "DASH →";
+            case RequiredDodge.Parry: return "PARRY";
+            default: return "DODGE";
+        }
     }
 }

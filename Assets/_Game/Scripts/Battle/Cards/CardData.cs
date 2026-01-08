@@ -88,10 +88,12 @@ namespace BattleSystem
     [CreateAssetMenu(fileName = "New Card", menuName = "Battle System/Card Data")]
     public class CardData : ScriptableObject
     {
+        [Header("ID (do not change once shipped)")]
+        public string cardId;
+
         [Header("Basic info")]
         public string cardName;
         public string description;
-        // public Sprite cardImage;
 
         [Header("Costs")]
         public int energyCost = 10;
@@ -158,6 +160,12 @@ namespace BattleSystem
                 }
             }
             return desc.Trim();
+        }
+
+        private void OnValidate()
+        {
+            if (string.IsNullOrWhiteSpace(cardId))
+                cardId = name;
         }
     }
 }

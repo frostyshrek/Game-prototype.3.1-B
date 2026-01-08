@@ -15,16 +15,16 @@ namespace BattleSystem
         public PlayerController playerController;
         public EnemyController enemyController;
         public ArenaManager arenaManager;
+        public BattleSFX battleSFX;
 
         [Header("Player References")]
-        public EnemyAttackController enemyAttackController;   // attach on Enemy
+        public EnemyAttackController enemyAttackController;   // spawned enemy's controller
         public BattleOrbitMovement playerMovement;            // attach on Player
         public PlayerEnergy playerEnergy;                     // attach on Player
 
         [Header("Battle Loadout")]
-        [Tooltip("5 cards the player has chosen before entering battle")]
-        [SerializeField] private List<CardData> equippedBattleCards = new List<CardData>();  // set to 5 cards in Inspector
         [SerializeField] private int cardsPerHand = 3;
+        [SerializeField] private CardDatabase cardDatabase;
 
         [Header("Enemy setup")]
         public Transform enemySpawnPoint;
@@ -34,11 +34,11 @@ namespace BattleSystem
         [SerializeField] private HandUIController handUI;
         [SerializeField] private CastButtonUI castButtonUI;
         [SerializeField] private GameOverUI gameOverUI;
+        [SerializeField] private BattleFeedbackUI feedbackUI;
 
         [Header("Enemy HP UI")]
         public Slider enemyHealthSlider;
         public TMP_Text enemyHealthText;
-        // public GameObject enemyDamageTextPrefab; // maybe in the future: floating damage text
 
         [Header("Enemy Telegraph UI")]
         public EnemyTelegraphUI enemyTelegraphUI;
@@ -73,14 +73,25 @@ namespace BattleSystem
                 Debug.LogWarning("BattleManager: CurrentEncounter is null (did you start from Glade?)");
             }
 
+            if (effectResolver != null && enemyData != null)
+                effectResolver.currentEnemyBiome = enemyData.arenaBiome;
+
+            if (GameState.I != null)
+                GameState.I.LoadCards();
+
             InitializeBattle();
             SetupEnemyFromGameState();
 
+            // Wire feedback system
+            if (effectResolver != null)
+                effectResolver.feedbackUI = feedbackUI;
+
+            if (cardManager != null)
+                cardManager.feedbackUI = feedbackUI;
+
             // enemy starts their own continuous attack loop
             if (enemyAttackController != null)
-            {
                 enemyAttackController.BeginAttacks();
-            }
 
             StartPlayerTurn();
         }
@@ -93,12 +104,9 @@ namespace BattleSystem
             cardManager.drawPile.Clear();
 
             if (handUI == null)
-            {
                 handUI = FindObjectOfType<HandUIController>(true);
-            }
 
             BuildRandomHandFromEquipped();
-            Debug.Log($"Battle init: hand={cardManager.playerHand.Count} cards (from {equippedBattleCards.Count} equipped)");
         }
 
         private void BuildRandomHandFromEquipped()
@@ -106,13 +114,40 @@ namespace BattleSystem
             cardManager.playerHand.Clear();
             cardManager.preparationArea.Clear();
 
-            if (equippedBattleCards == null || equippedBattleCards.Count == 0)
+            if (GameState.I == null)
             {
-                Debug.LogWarning("No equippedBattleCards set! Please assign 5 in BattleManager.");
+                Debug.LogWarning("BattleManager: No GameState found. Cannot load equipped deck.");
                 return;
             }
 
-            List<CardData> pool = new List<CardData>(equippedBattleCards);
+            if (cardDatabase == null)
+            {
+                Debug.LogError("BattleManager: cardDatabase not assigned! Drag your CardDatabase asset onto BattleManager.");
+                return;
+            }
+
+            var ids = GameState.I.EquippedCardIds;
+            if (ids == null || ids.Count == 0)
+            {
+                Debug.LogWarning("BattleManager: EquippedCardIds is empty. Did you save a deck in Glade?");
+                return;
+            }
+
+            List<CardData> equipped = new List<CardData>();
+            foreach (var id in ids)
+            {
+                var card = cardDatabase.FindById(id);
+                if (card != null) equipped.Add(card);
+                else Debug.LogWarning($"BattleManager: Could not find CardData for id '{id}' in CardDatabase.");
+            }
+
+            if (equipped.Count == 0)
+            {
+                Debug.LogWarning("BattleManager: No valid equipped cards found.");
+                return;
+            }
+
+            List<CardData> pool = new List<CardData>(equipped);
 
             for (int i = 0; i < cardsPerHand && pool.Count > 0; i++)
             {
@@ -127,8 +162,6 @@ namespace BattleSystem
                 handUI.RebuildHand(cardManager.playerHand);
         }
 
-        // ------------------- PLAYER TURN (card selection cycle) -------------------
-
         public void StartPlayerTurn()
         {
             isPlayerTurn = true;
@@ -138,80 +171,55 @@ namespace BattleSystem
             effectResolver.ProcessDamageOverTimeEffects(EffectTarget.Self);
 
             if (playerMovement != null)
-                playerMovement.SetCanMove(true);   // movement always allowed except GameOver
+                playerMovement.SetCanMove(true);
 
             if (playerController.IsDead())
             {
                 GameOver(false);
-                Debug.Log("Player hp below 0, lose");
                 return;
             }
-            
-            Debug.Log("=== Player's card selection starts ===");
         }
 
         public void EndPlayerTurn()
         {
             if (currentState != BattleState.PlayerTurn) return;
 
-            // only allow ending the "turn" if at least one card was actually played
             if (cardManager.preparationArea == null || cardManager.preparationArea.Count == 0)
             {
-                Debug.Log("Cannot Cast: no cards selected.");
-
                 if (castButtonUI != null)
                     castButtonUI.FlashError();
 
+                battleSFX?.PlayNotEffective();
+                feedbackUI?.Show("NO CARDS SELECTED", FeedbackType.Error, 1.6f);
                 return;
             }
 
-            // DO NOT affect movement or enemy attacks here
-            // Enemy is always attacking independently
-
-            // enforce hand size if ever needed
             while (cardManager.IsHandOverLimit())
-            {
                 cardManager.DiscardRandomHandCard();
-            }
 
-            Debug.Log("Player's selection ends, resolving card effects");
             StartCoroutine(ResolveCardEffects());
         }
-
-        // ------------------- RESOLVE CARD EFFECTS -------------------
 
         IEnumerator ResolveCardEffects()
         {
             currentState = BattleState.ResolvingEffects;
-            
-            List<CardData> cardsToResolve = cardManager.GetPreparationCards();
-            Debug.Log($"Resolving effects: {cardsToResolve.Count} cards");
 
+            List<CardData> cardsToResolve = cardManager.GetPreparationCards();
             yield return StartCoroutine(effectResolver.ResolvePreparationEffects(cardsToResolve));
-    
+
             cardManager.DiscardPreparationArea();
 
             if (enemyController.currentHealth <= 0)
             {
-                // Special case: final boss has its own death sequence
                 var finalBoss = enemyController.GetComponent<FinalBossVisuals>();
-                if (finalBoss != null)
-                {
-                    StartCoroutine(finalBoss.DeathSequence());
-                }
-                else
-                {
-                    GameOver(true);
-                }
+                if (finalBoss != null) StartCoroutine(finalBoss.DeathSequence());
+                else GameOver(true);
                 yield break;
             }
 
-            // Immediately start next card-selection cycle with a new random hand
             BuildRandomHandFromEquipped();
             StartPlayerTurn();
         }
-
-        // ------------------- GAME OVER -------------------
 
         public void GameOver(bool playerWon)
         {
@@ -227,16 +235,44 @@ namespace BattleSystem
 
             if (playerWon && GameState.I != null)
             {
+                EnemyData data = GameState.I.CurrentEncounter;
+
+                if (data != null)
+                {
+                    // Card drop (MiniBoss + MainBoss)
+                    if ((data.tier == EnemyTier.MiniBoss || data.tier == EnemyTier.MainBoss) && data.droppedCard != null)
+                    {
+                        GameState.I.UnlockCard(data.droppedCard);
+                        feedbackUI?.Show($"NEW CARD: {data.droppedCard.cardName}", FeedbackType.Success, 2.0f);
+                    }
+
+                    // Rune drop (MainBoss only)
+                    if (data.tier == EnemyTier.MainBoss)
+                    {
+                        GameState.I.GiveRune(data.droppedRune);
+                        feedbackUI?.Show($"GREAT RUNE: {data.droppedRune}", FeedbackType.Effective, 2.4f);
+                    }
+
+                    GameState.I.SaveCards();
+                    Debug.Log("[BattleManager] Forced SaveCards after rewards.");
+                }
+
+                // Encounter defeated tracking
                 GameState.I.MarkEncounterDefeated(GameState.I.LastEncounterId);
-                GameState.I.GiveKey(KeyItem.AncientKey);
             }
 
             if (gameOverUI != null)
             {
                 if (playerWon)
+                {
+                    battleSFX?.PlayWinGameOver();
                     gameOverUI.ShowWin();
+                }
                 else
+                {
+                    battleSFX?.PlayLoseGameOver();
                     gameOverUI.ShowDeath();
+                }
             }
             else
             {
@@ -254,20 +290,13 @@ namespace BattleSystem
         public void OnEndTurnButtonClicked()
         {
             if (currentState == BattleState.PlayerTurn)
-            {
                 EndPlayerTurn();
-            }
         }
 
         void Update()
         {
-            if (currentState == BattleState.PlayerTurn)
-            {
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    OnEndTurnButtonClicked();
-                }
-            }
+            if (currentState == BattleState.PlayerTurn && Input.GetKeyDown(KeyCode.E))
+                OnEndTurnButtonClicked();
         }
 
         void SetupEnemyFromGameState()
@@ -280,15 +309,12 @@ namespace BattleSystem
                 return;
             }
 
-            // --- Decide where to spawn the enemy using enemySpawnPoint ---
             Vector3 pos = enemySpawnPoint != null ? enemySpawnPoint.position : Vector3.zero;
             Quaternion rot = enemySpawnPoint != null ? enemySpawnPoint.rotation : Quaternion.identity;
 
-            // If this enemy uses the Final Boss arena, lift the spawn a bit
+            // final boss spawn height fix
             if (data.arenaBiome == ArenaBiome.FinalBoss)
-            {
-                pos.y = 2f;   // adjust this height until the orb looks right
-            }
+                pos.y = 2f;
 
             GameObject enemyGO = Instantiate(data.battlePrefab, pos, rot);
 
@@ -299,17 +325,13 @@ namespace BattleSystem
                 return;
             }
 
-            // HP UI
             enemyController.healthBarSlider = enemyHealthSlider;
             enemyController.healthText = enemyHealthText;
-            // enemyController.damageTextPrefab = enemyDamageTextPrefab;
             enemyController.InitializeCharacter();
 
-            // Hook enemy into other systems
             if (effectResolver != null)
                 effectResolver.enemyController = enemyController;
-                
-            // Hook Enemy Attack Controller wiring
+
             var attackCtrl = enemyGO.GetComponent<EnemyAttackController>();
             if (attackCtrl != null)
             {
@@ -319,6 +341,12 @@ namespace BattleSystem
                 attackCtrl.battleManager = this;
                 attackCtrl.telegraphUI = enemyTelegraphUI;
                 attackCtrl.animator = enemyController.animator;
+                attackCtrl.feedbackUI = feedbackUI;
+                attackCtrl.battleSFX = battleSFX;
+
+                // ✅ MAP BIOME -> ATTRIBUTE and pass it once
+                CardAttribute mapped = AttributeFromBiome(data.arenaBiome);
+                attackCtrl.SetEnemyAttribute(mapped);
 
                 enemyAttackController = attackCtrl;
             }
@@ -327,9 +355,22 @@ namespace BattleSystem
                 Debug.LogWarning("Spawned enemy has no EnemyAttackController.");
             }
 
-            // Hook Name text
             if (enemyNameText != null)
                 enemyNameText.text = data.displayName;
+        }
+
+        private CardAttribute AttributeFromBiome(ArenaBiome biome)
+        {
+            switch (biome)
+            {
+                case ArenaBiome.Fire:       return CardAttribute.Fire;
+                case ArenaBiome.Ice:        return CardAttribute.Ice;
+                case ArenaBiome.Forest:     return CardAttribute.Earth;
+                case ArenaBiome.Lightning:  return CardAttribute.Lightning;
+                case ArenaBiome.Castle:
+                case ArenaBiome.FinalBoss:
+                default:                    return CardAttribute.Physical;
+            }
         }
     }
 }

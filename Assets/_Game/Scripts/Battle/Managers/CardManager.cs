@@ -19,9 +19,14 @@ namespace BattleSystem
         public int maxCardsPerTurn = 3;
         public int maxPreparationSlots = 3;
 
+        [Header("UI")]
+        public BattleFeedbackUI feedbackUI;
+
         [Header("Energy")]
         public PlayerEnergy playerEnergy;
         public EnergyBarFeedback energyBarFeedback;
+
+        public BattleSFX battleSFX;
 
         // ---- deck init / draw (unchanged) ----
 
@@ -119,10 +124,15 @@ namespace BattleSystem
             {
                 if (!playerEnergy.TrySpend(card.energyCost))
                 {
-                    Debug.Log($"Not enough energy to play card: {card.cardName} (cost {card.energyCost})");
+                    Debug.Log($"Not enough energy to play card: {card.cardName}");
+
+                    battleSFX?.PlayNotEffective();
 
                     if (energyBarFeedback != null)
                         energyBarFeedback.PlayNotEnoughEnergyFeedback();
+
+                    if (feedbackUI != null)
+                        feedbackUI.Show("NOT ENOUGH ENERGY", FeedbackType.Error, 1.2f);
 
                     return false;
                 }

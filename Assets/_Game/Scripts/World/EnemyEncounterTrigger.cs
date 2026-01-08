@@ -39,6 +39,8 @@ public class EnemyEncounterTrigger : MonoBehaviour
     {
         if (triggered || !other.CompareTag("Player")) return;
 
+        FindObjectOfType<GladeSFX>()?.PlayEncounter();
+
         triggered = true;
         gameObject.SetActive(false); // hide immediately to avoid re-trigger
 
