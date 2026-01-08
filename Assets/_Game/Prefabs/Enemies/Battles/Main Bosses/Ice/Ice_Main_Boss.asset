@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdded91026c812d4084dd7be6a6d60b1, type: 3}
+  m_Name: Ice_Main_Boss
+  m_EditorClassIdentifier: 
+  id: ice_main_boss
+  displayName: Frozen Queen
+  battlePrefab: {fileID: 194904, guid: 445a5c29e7f715947b713a753f242af0, type: 3}
+  arenaBiome: 2
+  tier: 2
+  droppedCard: {fileID: 11400000, guid: 5eed22e02fb14c44c8959519a65b2740, type: 2}
+  droppedRune: 2

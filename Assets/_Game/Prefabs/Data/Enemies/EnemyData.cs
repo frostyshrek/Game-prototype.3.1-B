@@ -1,6 +1,11 @@
 using UnityEngine;
 
-
+public enum EnemyTier
+{
+    Normal,
+    MiniBoss,
+    MainBoss
+}
 
 namespace BattleSystem
 {
@@ -12,6 +17,15 @@ namespace BattleSystem
 
         public GameObject battlePrefab;   // prefab to spawn in Battle scene
         public ArenaBiome arenaBiome;  // which Arena this enemy fights in
+
+        [Header("Rewards")]
+        public EnemyTier tier = EnemyTier.Normal;
+
+        [Tooltip("MiniBoss + MainBoss drop this card.")]
+        public CardData droppedCard;
+
+        [Tooltip("MainBoss only: drops a Great Rune.")]
+        public GreatRune droppedRune;
 
         // public EnemyAttackPattern[] attackPatterns;
         // public CardData[] cardDrops;

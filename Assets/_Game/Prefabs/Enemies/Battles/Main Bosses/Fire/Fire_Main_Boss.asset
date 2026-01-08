@@ -16,3 +16,6 @@ MonoBehaviour:
   displayName: Devourer of Souls
   battlePrefab: {fileID: 101568, guid: 59c100dd669d88f46b60555886d4dae7, type: 3}
   arenaBiome: 1
+  tier: 2
+  droppedCard: {fileID: 11400000, guid: cbbe7e94897aad54eb063468caf99327, type: 2}
+  droppedRune: 1

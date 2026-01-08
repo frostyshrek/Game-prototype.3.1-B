@@ -16,3 +16,6 @@ MonoBehaviour:
   displayName: Wood's Nightmare
   battlePrefab: {fileID: 4183867039457555158, guid: 62a94da3b8740684ebace034c86458c9, type: 3}
   arenaBiome: 3
+  tier: 2
+  droppedCard: {fileID: 11400000, guid: c13d29551107c184cbc2be7360c0aea3, type: 2}
+  droppedRune: 3

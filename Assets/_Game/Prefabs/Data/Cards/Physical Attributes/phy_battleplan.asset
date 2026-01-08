@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardId: phy_battleplan
   cardName: Battle Plan
-  description: Draw 2 Cards
-  energyCost: 25
+  description: Strategize your next Move
+  energyCost: 40
   effects:
-  - effectType: 2
-    target: 0
-    value: 2
+  - effectType: 0
+    target: 1
+    value: 15
     attribute: 0
-    statusType: 0
-    statusDuration: 0
+    statusType: 1
+    statusDuration: 1
     requiredAttribute: 0
     requirePreviousCard: 0
     requireNextCard: 0

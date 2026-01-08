@@ -61,7 +61,7 @@ public class GladeLoadoutUI : MonoBehaviour
             GameState.I.EnsureStarterCards(starterCards);
             GameState.I.LoadCards();
         }
-
+        Debug.Log("[Glade] unlocked = " + string.Join(", ", GameState.I.UnlockedCardIds));
         BuildNameLibrary();
         RefreshSlotsFromSave();
         SelectSlot(0);
@@ -88,6 +88,13 @@ public class GladeLoadoutUI : MonoBehaviour
         SetOpen(true, instant: false);
         Time.timeScale = 0f;
         ClearInfo(); // don’t show anything until hover/click
+
+        if (GameState.I != null)
+        {
+            GameState.I.LoadCards();
+            Debug.Log("[Glade] unlocked = " + string.Join(", ", GameState.I.UnlockedCardIds));
+            BuildNameLibrary();
+        }
     }
 
     public void Close()

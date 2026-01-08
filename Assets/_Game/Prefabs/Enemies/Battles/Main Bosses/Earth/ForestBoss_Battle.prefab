@@ -1226,7 +1226,6 @@ GameObject:
   - component: {fileID: 200363077985604644}
   - component: {fileID: 2392592695498058420}
   - component: {fileID: 8577624882380188691}
-  - component: {fileID: 7130672734415725938}
   - component: {fileID: 3077026380543383270}
   - component: {fileID: -9106359461407029230}
   m_Layer: 0
@@ -1313,21 +1312,6 @@ MonoBehaviour:
   battleSceneName: Battle
   delayBeforeLoad: 0.5
   encounterEffect: {fileID: 0}
---- !u!114 &7130672734415725938
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4183867039457555158}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b74267d4d0e3624683907218324cffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHP: 3
-  keyDropPrefab: {fileID: 0}
-  dropPoint: {fileID: 0}
 --- !u!114 &3077026380543383270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1369,14 +1353,25 @@ MonoBehaviour:
   playerEnergy: {fileID: 0}
   playerCharacter: {fileID: 0}
   battleManager: {fileID: 0}
+  feedbackUI: {fileID: 0}
+  battleSFX: {fileID: 0}
   attackPatterns:
   - {fileID: 11400000, guid: 363e27d6f7714394794baeb974439265, type: 2}
+  - {fileID: 11400000, guid: f8053bb0d4917fe41b358a1ab41250e6, type: 2}
+  - {fileID: 11400000, guid: 831d6d1749925ca4f990b8ec9cfa3c62, type: 2}
   telegraphUI: {fileID: 0}
   autoStart: 1
   refillEnergyOnDodge: 1
   baseMinInterval: 2
   baseMaxInterval: 4
   speedMultiplier: 1
+  attackBurstPrefab: {fileID: 959961180767146360, guid: 65cd16c9f9a6417489a4afca85452e34, type: 3}
+  attackBurstPoint: {fileID: 0}
+  physicalColor: {r: 1, g: 1, b: 1, a: 1}
+  fireColor: {r: 1, g: 0.4, b: 0.1, a: 1}
+  iceColor: {r: 0.5, g: 0.9, b: 1, a: 1}
+  earthColor: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  lightningColor: {r: 1, g: 0.9, b: 0.2, a: 1}
   animator: {fileID: 0}
 --- !u!1 &4208254515641037263
 GameObject:
