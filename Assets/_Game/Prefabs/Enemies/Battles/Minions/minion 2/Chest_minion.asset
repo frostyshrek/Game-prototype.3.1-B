@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdded91026c812d4084dd7be6a6d60b1, type: 3}
   m_Name: Chest_minion
   m_EditorClassIdentifier: 
-  id: 
-  displayName: 
-  battlePrefab: {fileID: 0}
+  id: chest_mimic
+  displayName: Mimic
+  battlePrefab: {fileID: 1512148224729317677, guid: a50dc8fc460c47aa9033b698c00b2133, type: 3}
   arenaBiome: 0
   tier: 0
   droppedCard: {fileID: 0}
