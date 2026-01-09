@@ -233,9 +233,16 @@ namespace BattleSystem
             if (enemyAttackController != null)
                 enemyAttackController.StopAttacks();
 
+                
+
             if (playerWon && GameState.I != null)
             {
                 EnemyData data = GameState.I.CurrentEncounter;
+                if (playerWon && data != null && data.arenaBiome == ArenaBiome.FinalBoss)
+                {
+                    var end = FindObjectOfType<FinalBossEndScreen>(true);
+                    if (end != null) end.TriggerEnd();
+                }
 
                 if (data != null)
                 {
@@ -344,7 +351,7 @@ namespace BattleSystem
                 attackCtrl.feedbackUI = feedbackUI;
                 attackCtrl.battleSFX = battleSFX;
 
-                // ✅ MAP BIOME -> ATTRIBUTE and pass it once
+                // MAP BIOME -> ATTRIBUTE and pass it once
                 CardAttribute mapped = AttributeFromBiome(data.arenaBiome);
                 attackCtrl.SetEnemyAttribute(mapped);
 

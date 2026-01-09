@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class MenuFlow : MonoBehaviour
 {
     [Header("Overlay")]
-    public CanvasGroup blackOverlay;   // BlackOverlay ÉÏµÄ CanvasGroup
+    public CanvasGroup blackOverlay;   // BlackOverlay ï¿½Ïµï¿½ CanvasGroup
     public TMP_Text storyText;         // StoryText
 
     [Header("Scene")]
@@ -14,10 +14,10 @@ public class MenuFlow : MonoBehaviour
 
     [Header("Timing")]
     public float fadeDuration = 1.0f;
-    public float lineDelay = 0.9f;     // Ã¿¶ÎÖ®¼äÍ£¶Ù
+    public float lineDelay = 0.9f;     // Ã¿ï¿½ï¿½Ö®ï¿½ï¿½Í£ï¿½ï¿½
 
     [TextArea(2, 6)]
-    public string[] lines;             // ÄãµÄ¶à¶ÎÎÄ±¾
+    public string[] lines;             // ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½Ä±ï¿½
 
     [TextArea(10, 40)]
     public string fullStory;
@@ -26,7 +26,7 @@ public class MenuFlow : MonoBehaviour
 
     void Awake()
     {
-        // ³õÊ¼×´Ì¬£ººÚÄ»Í¸Ã÷¡¢²»¿Éµ²ÊäÈë
+        // ï¿½ï¿½Ê¼×´Ì¬ï¿½ï¿½ï¿½ï¿½Ä»Í¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éµï¿½ï¿½ï¿½ï¿½ï¿½
         if (blackOverlay != null)
         {
             blackOverlay.alpha = 0f;
@@ -47,7 +47,7 @@ public class MenuFlow : MonoBehaviour
         }
     }
 
-    // °ó¶¨µ½ New Game °´Å¥
+    // ï¿½ó¶¨µï¿½ New Game ï¿½ï¿½Å¥
     public void OnClickNewGame()
     {
         StopAllCoroutines();
@@ -56,28 +56,28 @@ public class MenuFlow : MonoBehaviour
 
     IEnumerator NewGameSequence()
     {
-        // ºÚÄ»¿ªÊ¼½Ó¹ÜÊäÈë£¨·ÀÖ¹Íæ¼ÒÔÙµã°´Å¥£©
+        // ï¿½ï¿½Ä»ï¿½ï¿½Ê¼ï¿½Ó¹ï¿½ï¿½ï¿½ï¿½ë£¨ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½Ùµã°´Å¥ï¿½ï¿½
         blackOverlay.blocksRaycasts = true;
         blackOverlay.interactable = true;
 
-        // 1) µ­Èëµ½È«ºÚ
+        // 1) ï¿½ï¿½ï¿½ëµ½È«ï¿½ï¿½
         yield return Fade(0f, 1f, fadeDuration);
 
-        // 2) ÏÔÊ¾ÄãµÄÎÄ±¾£¨Öð¶Î×·¼Ó£©ADD OUR STORY HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        storyText.text = fullStory;          // fullStory ÊÇÄãµÄÕû¶Î³¤¹ÊÊÂ×Ö·û´®
-        storyText.pageToDisplay = 1;         // ´ÓµÚ1Ò³¿ªÊ¼
+        // 2) ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×·ï¿½Ó£ï¿½ADD OUR STORY HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        storyText.text = fullStory;          // fullStory ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
+        storyText.pageToDisplay = 1;         // ï¿½Óµï¿½1Ò³ï¿½ï¿½Ê¼
 
-        // Ç¿ÖÆ TMP ÏÈ¼ÆËã·ÖÒ³ÐÅÏ¢£¨±ØÐë£©
+        // Ç¿ï¿½ï¿½ TMP ï¿½È¼ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ë£©
         storyText.ForceMeshUpdate();
 
         int totalPages = storyText.textInfo.pageCount;
 
         while (true)
         {
-            // µÈ´ýÈÎÒâÊäÈë£¨¼üÅÌ/Êó±ê£©
+            // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë£¨ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ê£©
             yield return new WaitUntil(() => Input.anyKeyDown);
 
-            // ·ÀÖ¹Ò»Ö¡ÄÚ¶à´Î´¥·¢
+            // ï¿½ï¿½Ö¹Ò»Ö¡ï¿½Ú¶ï¿½Î´ï¿½ï¿½ï¿½
             yield return null;
 
             if (storyText.pageToDisplay < totalPages)
@@ -86,16 +86,18 @@ public class MenuFlow : MonoBehaviour
             }
             else
             {
-                break; // ×îºóÒ»Ò³°´ÏÂºó½áÊø·­Ò³£¬¼ÌÐøÖ´ÐÐºóÃæµÄ¡°½øÓÎÏ·¡±Âß¼­
+                break; // ï¿½ï¿½ï¿½Ò»Ò³ï¿½ï¿½ï¿½Âºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ðºï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ß¼ï¿½
             }
         }
         storyText.text += "\n\n<color=#FFFFFFAA>Press any key to continue</color>";
 
-        // µÈ×îºóÒ»´ÎÊäÈë
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         yield return new WaitUntil(() => Input.anyKeyDown);
         yield return null;
 
-        // Ìø×ª³¡¾°
+        
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
         UnityEngine.SceneManagement.SceneManager.LoadScene("Glade");
 
         IEnumerator Fade(float from, float to, float duration)
@@ -109,6 +111,6 @@ public class MenuFlow : MonoBehaviour
                 yield return null;
             }
             blackOverlay.alpha = to;
-        }
+        }        
     }
 }

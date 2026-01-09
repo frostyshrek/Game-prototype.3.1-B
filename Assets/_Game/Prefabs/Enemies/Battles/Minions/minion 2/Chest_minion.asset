@@ -15,7 +15,7 @@ MonoBehaviour:
   id: chest_mimic
   displayName: Mimic
   battlePrefab: {fileID: 1512148224729317677, guid: a50dc8fc460c47aa9033b698c00b2133, type: 3}
-  arenaBiome: 0
+  arenaBiome: 1
   tier: 0
   droppedCard: {fileID: 0}
   droppedRune: 0

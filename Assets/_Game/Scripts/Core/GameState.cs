@@ -115,6 +115,12 @@ public class GameState : MonoBehaviour
         PlayerPrefs.SetString(PFX + "scene", CheckpointScene);
 
         PlayerPrefs.SetString(PFX + "keys", string.Join(",", _keys));
+
+        // ALSO save progression
+        SaveCards();
+        SaveRunes();
+        PlayerPrefs.SetString("GS_defeated", string.Join(",", _defeatedEncounters));
+
         PlayerPrefs.Save();
     }
 
@@ -277,4 +283,24 @@ public class GameState : MonoBehaviour
                     collectedRunes.Add(r);
         }
     }
+
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause)
+        {
+            SaveCards();
+            SaveRunes();
+            PlayerPrefs.SetString("GS_defeated", string.Join(",", _defeatedEncounters));
+            PlayerPrefs.Save();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveCards();
+        SaveRunes();
+        PlayerPrefs.SetString("GS_defeated", string.Join(",", _defeatedEncounters));
+        PlayerPrefs.Save();
+    }
+
 }
