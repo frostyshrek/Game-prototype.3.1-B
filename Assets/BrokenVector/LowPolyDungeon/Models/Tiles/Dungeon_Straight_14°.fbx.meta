@@ -23,7 +23,7 @@ ModelImporter:
     second: //RootNode
   - first:
       43: 4300000
-    second: "0\u0738z \0\0\0Straight\x01\0\0\0\0"
+    second: "\0\u0693{\0\0\0\0Straight\x01\0\0\0\0"
   - first:
       64: 6400000
     second: //RootNode
