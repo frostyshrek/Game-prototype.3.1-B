@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdded91026c812d4084dd7be6a6d60b1, type: 3}
   m_Name: phy_Main_boss
   m_EditorClassIdentifier: 
-  id: 
-  displayName: 
-  battlePrefab: {fileID: 0}
+  id: beholder_physical
+  displayName: Beholder
+  battlePrefab: {fileID: 1695502807786733843, guid: c73a559184154c75991d095521bdea87, type: 3}
   arenaBiome: 0
-  tier: 0
-  droppedCard: {fileID: 0}
+  tier: 2
+  droppedCard: {fileID: 11400000, guid: 7c04eacf1ce4f7648b0266d62f9d2a75, type: 2}
   droppedRune: 0

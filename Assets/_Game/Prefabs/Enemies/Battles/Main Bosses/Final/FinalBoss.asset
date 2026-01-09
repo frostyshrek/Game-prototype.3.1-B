@@ -16,3 +16,6 @@ MonoBehaviour:
   displayName: Radiant Soul
   battlePrefab: {fileID: 7720834404081794312, guid: ea020e014151b90408483c2425c2bc0f, type: 3}
   arenaBiome: 5
+  tier: 2
+  droppedCard: {fileID: 0}
+  droppedRune: 0

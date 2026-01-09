@@ -76,14 +76,6 @@ public class GameState : MonoBehaviour
         CurrentEncounter = data;
     }
 
-    // ---- Current encounter data for Battle scene ----
-    public EnemyData CurrentEncounter { get; private set; }
-
-    public void SetCurrentEncounter(EnemyData data)
-    {
-        CurrentEncounter = data;
-    }
-
     void Awake()
     {
         if (I != null) { Destroy(gameObject); return; }

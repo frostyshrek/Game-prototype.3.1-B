@@ -70,7 +70,7 @@ public class GladeLoadoutUI : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        if (Input.GetKeyDown(KeyCode.Q))
             Toggle();
     }
 

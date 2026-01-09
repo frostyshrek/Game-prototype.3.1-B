@@ -48,11 +48,6 @@ public class EnemyAttackController : MonoBehaviour
 
     public Animator animator;
 
-    private void Awake()
-    {
-        animator = GetComponentInChildren<Animator>();
-    }
-
     private void Start()
     {
         if (autoStart)
