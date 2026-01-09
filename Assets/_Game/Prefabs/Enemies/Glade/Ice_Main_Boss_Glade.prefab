@@ -3989,6 +3989,8 @@ GameObject:
   m_Component:
   - component: {fileID: 480080}
   - component: {fileID: 9535974}
+  - component: {fileID: -5765779645998819374}
+  - component: {fileID: 4202875379599741798}
   m_Layer: 0
   m_Name: Ice_Main_Boss_Glade
   m_TagString: Untagged
@@ -4035,6 +4037,44 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &-5765779645998819374
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194904}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4202875379599741798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b06b71c407e1e8f408b487592ee80432, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  encounterId: ice_main_boss
+  enemyData: {fileID: 11400000, guid: f0c0e508ab66cdc41918b32cf109c1eb, type: 2}
+  battleSceneName: Battle
+  delayBeforeLoad: 0.5
+  encounterEffect: {fileID: 0}
 --- !u!1 &196352
 GameObject:
   m_ObjectHideFlags: 0

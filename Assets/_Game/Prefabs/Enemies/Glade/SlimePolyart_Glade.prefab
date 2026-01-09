@@ -361,8 +361,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7498142190150400792}
   - component: {fileID: 8035681660144644490}
-  - component: {fileID: 7456078736426931484}
-  - component: {fileID: 6755417976786421312}
+  - component: {fileID: 861769167888864818}
+  - component: {fileID: 4691066140774675928}
   m_Layer: 0
   m_Name: SlimePolyart_Glade
   m_TagString: Untagged
@@ -409,7 +409,28 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7456078736426931484
+--- !u!65 &861769167888864818
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7153141402127884706}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4691066140774675928
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -418,58 +439,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7153141402127884706}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cc63904a25349549b4b6877dda86dd7, type: 3}
+  m_Script: {fileID: 11500000, guid: b06b71c407e1e8f408b487592ee80432, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerMovement: {fileID: 0}
-  playerEnergy: {fileID: 0}
-  playerCharacter: {fileID: 0}
-  battleManager: {fileID: 0}
-  feedbackUI: {fileID: 0}
-  battleSFX: {fileID: 0}
-  attackPatterns:
-  - {fileID: 11400000, guid: aad4945fe869e3b42b200693dd7c28a2, type: 2}
-  - {fileID: 11400000, guid: d427b38ea8da3964cb6b6294109248f2, type: 2}
-  - {fileID: 11400000, guid: 99cb227eac319c14daf506d03abc935d, type: 2}
-  telegraphUI: {fileID: 0}
-  autoStart: 1
-  refillEnergyOnDodge: 1
-  baseMinInterval: 2
-  baseMaxInterval: 4
-  speedMultiplier: 1
-  attackBurstPrefab: {fileID: 959961180767146360, guid: 65cd16c9f9a6417489a4afca85452e34, type: 3}
-  attackBurstPoint: {fileID: 0}
-  physicalColor: {r: 1, g: 1, b: 1, a: 1}
-  fireColor: {r: 1, g: 0.4, b: 0.1, a: 1}
-  iceColor: {r: 0.5, g: 0.9, b: 1, a: 1}
-  earthColor: {r: 0.4, g: 0.9, b: 0.4, a: 1}
-  lightningColor: {r: 1, g: 0.9, b: 0.2, a: 1}
-  animator: {fileID: 0}
---- !u!114 &6755417976786421312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7153141402127884706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: efb441e48d68cf947a3f75f11120f826, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 100
-  isPlayer: 0
-  healthBarSlider: {fileID: 0}
-  healthText: {fileID: 0}
-  damageTextPrefab: {fileID: 0}
-  animator: {fileID: 8035681660144644490}
-  hitTriggerName: Hit
-  dieTriggerName: Die
-  isDeadBoolName: IsDead
-  battleManager: {fileID: 0}
-  hpUIPrefab: {fileID: 0}
-  enemyName: Enemy
+  encounterId: slime_minion
+  enemyData: {fileID: 11400000, guid: cbd677e641796034e9af7063feb77500, type: 2}
+  battleSceneName: Battle
+  delayBeforeLoad: 0.5
+  encounterEffect: {fileID: 0}
 --- !u!1 &7446019047767849115
 GameObject:
   m_ObjectHideFlags: 0

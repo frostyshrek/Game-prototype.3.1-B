@@ -390,6 +390,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1695502807786446131}
   - component: {fileID: 1695502807779455699}
+  - component: {fileID: 8302598264408897965}
+  - component: {fileID: -6006010241859381613}
   m_Layer: 0
   m_Name: Beholder_phy_Glade
   m_TagString: Untagged
@@ -436,6 +438,44 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &8302598264408897965
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695502807786733843}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-6006010241859381613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695502807786733843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b06b71c407e1e8f408b487592ee80432, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  encounterId: beholder_physical
+  enemyData: {fileID: 11400000, guid: fac5f092cd2e8d643aae26822e6a6ad8, type: 2}
+  battleSceneName: Battle
+  delayBeforeLoad: 0.5
+  encounterEffect: {fileID: 0}
 --- !u!1 &1695502807786733845
 GameObject:
   m_ObjectHideFlags: 0
