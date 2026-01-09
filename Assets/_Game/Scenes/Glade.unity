@@ -1221,6 +1221,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagmaPlatform_02 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2444,6 +2448,10 @@ PrefabInstance:
     - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
       propertyPath: m_Name
       value: MagmaPlatform_02 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3959,6 +3967,10 @@ PrefabInstance:
     - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
       propertyPath: m_Name
       value: MagmaPlatform_02 (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5711,6 +5723,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagmaPlatform_02 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6404,6 +6420,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagmaPlatform_02 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6996,6 +7016,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagmaPlatform_02
       objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7064,6 +7088,10 @@ PrefabInstance:
     - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
       propertyPath: m_Name
       value: MagmaPlatform_02 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9477,6 +9505,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagmaPlatform_02 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10008,16 +10040,28 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.98752
+      objectReference: {fileID: 0}
+    - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.1812714
+      objectReference: {fileID: 0}
+    - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.98752
+      objectReference: {fileID: 0}
+    - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -99.47441
+      value: -99.644
       objectReference: {fileID: 0}
     - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.21357
+      value: -5.0063
       objectReference: {fileID: 0}
     - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 380.5902
+      value: 380.61
       objectReference: {fileID: 0}
     - target: {fileID: 1322179546787637748, guid: 52c942447f425a64a8cd0588f03d26b1, type: 3}
       propertyPath: m_LocalRotation.w
@@ -11326,6 +11370,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagmaPlatform_02 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11722,6 +11770,10 @@ PrefabInstance:
     - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
       propertyPath: m_Name
       value: MagmaPlatform_02 (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7169016033262652877, guid: 5f934de1de3bde448bd5355432662e96, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
